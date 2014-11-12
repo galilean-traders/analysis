@@ -13,7 +13,7 @@ module.exports = {
                 body += chunk
             googleres.on "end", ->
                 console.log "BODY: #{body}"
-                res.send JSON.parse(body)["candles"][0]
+                res.send JSON.parse(body)["candles"][1]
 
         ).on('error', (e) ->
             console.log("Got error: " + e.message)
