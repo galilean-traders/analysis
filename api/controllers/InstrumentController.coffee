@@ -18,32 +18,37 @@ module.exports = {
     ema5: (req, res) ->
         name = req.param 'name'
         request = http.request {
-            port: 1337
-            path: "/instrument/raw/#{name}"
-        }, (data) ->
-            body = ""
-            data.on "data", (chunk) ->
-                body += chunk
-            data.on "end", ->
-                zmq_socket = zmq.socket('req')
-                zmq_socket.connect("tcp://localhost:41932")
-                zmq_socket.send(
-                    JSON.stringify(
-                        {
-                            fun: "EMA"
-                            args: {
-                                x: JSON.parse(body).candles.map (e) ->
-                                    e.closeMid
-                                n: 5
+                port: 1337
+                path: "/instrument/raw/#{name}"
+            }, (data) ->
+                body = ""
+                data.on "data", (chunk) ->
+                    body += chunk
+                data.on "end", ->
+                    candles = JSON.parse(body).candles
+                    zmq_socket = zmq.socket('req')
+                    zmq_socket.connect("tcp://localhost:41932")
+                    zmq_socket.send(
+                        JSON.stringify(
+                            {
+                                fun: "EMA"
+                                args: {
+                                    x: candles.map (d) ->
+                                        d.closeMid
+                                    n: 5
+                                }
                             }
-                        }
+                        )
                     )
-                )
-                zmq_socket.on('message', (data) ->
-                    console.log('answer data ' + data)
-                    res.json JSON.parse("" + data)
-                )
-        .on 'error', (e) ->
-            console.warn "ERROR: #{e.message}" 
+                    zmq_socket.on('message', (data) ->
+                        console.log('answer data ' + data)
+                        res.json JSON.parse("" + data).map (d, i) ->
+                            {
+                                time: candles[1].time
+                                value: d
+                            }
+                    )
+            .on 'error', (e) ->
+                console.warn "ERROR: #{e.message}" 
         request.end()
 }
