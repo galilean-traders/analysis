@@ -19,7 +19,7 @@ module.exports = {
         name = req.param 'name'
         request = http.request {
                 port: 1337
-                path: "/instrument/raw/#{name}"
+                path: "/api/instrument/rawdata?name=#{name}"
             }, (data) ->
                 body = ""
                 data.on "data", (chunk) ->
@@ -44,7 +44,7 @@ module.exports = {
                         console.log('answer data ' + data)
                         res.json JSON.parse("" + data).map (d, i) ->
                             {
-                                time: candles[1].time
+                                time: candles[i].time
                                 value: d
                             }
                     )
