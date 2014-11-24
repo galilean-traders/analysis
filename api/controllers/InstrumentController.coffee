@@ -131,7 +131,7 @@ module.exports =
         count = parseInt(req.param('count')) or 20
         request = http.request {
                 port: 1337
-                path: "/api/instrument/rawdata?name=#{name}&granularity=D&count=#{14 + count}"
+                path: "/api/instrument/rawdata?name=#{name}&granularity=D&count=#{13 + count}"
             }, (data) ->
                 body = ""
                 data.on "data", (chunk) ->
