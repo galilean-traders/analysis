@@ -5,7 +5,6 @@
 
 https = require "https"
 http = require "http"
-zmq = require "zmq"
 
 module.exports =
     rawdata: (req, res) ->
@@ -28,17 +27,15 @@ module.exports =
                     body += chunk
                 data.on "end", ->
                     candles = JSON.parse(body).candles
-                    zmq_socket = zmq.socket('req')
-                    zmq_socket.connect("tcp://localhost:41932")
-                    zmq_socket.send JSON.stringify
+                    zmq_object =
                         fun: "EMA"
                         args:
                             x: candles.map (d) ->
                                 d.closeMid
                             n: 5
-                    zmq_socket.on 'message', (data) ->
+                    zmqUtils.send zmq_object, (data) ->
                         console.log "ema5 answer data: #{data}"
-                        res.json JSON.parse("" + data).map (d, i) ->
+                        res.json rUtils.filter_NA(data).map (d, i) ->
                             time: candles[i].time
                             value: d
             .on 'error', (e) ->
@@ -56,17 +53,15 @@ module.exports =
                     body += chunk
                 data.on "end", ->
                     candles = JSON.parse(body).candles
-                    zmq_socket = zmq.socket('req')
-                    zmq_socket.connect("tcp://localhost:41932")
-                    zmq_socket.send JSON.stringify
+                    zmq_object =
                         fun: "EMA"
                         args:
                             x: candles.map (d) ->
                                 d.closeMid
                             n: 10
-                    zmq_socket.on 'message', (data) ->
-                        console.log "ema5 answer data: #{data}"
-                        res.json JSON.parse("" + data).map (d, i) ->
+                    zmqUtils.send zmq_object, (data) ->
+                        console.log "ema10 answer data: #{data}"
+                        res.json rUtils.filter_NA(data).map (d, i) ->
                             time: candles[i].time
                             value: d
             .on 'error', (e) ->
@@ -84,17 +79,15 @@ module.exports =
                     body += chunk
                 data.on "end", ->
                     candles = JSON.parse(body).candles
-                    zmq_socket = zmq.socket('req')
-                    zmq_socket.connect("tcp://localhost:41932")
-                    zmq_socket.send JSON.stringify
+                    zmq_object =
                         fun: "RSI"
                         args:
                             price: candles.map (d) ->
                                 d.closeMid
                             n: 14
-                    zmq_socket.on 'message', (data) ->
+                    zmqUtils.send zmq_object, (data) ->
                         console.log "rsi answer data: #{data}"
-                        res.json JSON.parse("" + data).map (d, i) ->
+                        res.json rUtils.filter_NA(data).map (d, i) ->
                             time: candles[i].time
                             value: d
             .on 'error', (e) ->
@@ -112,9 +105,7 @@ module.exports =
                     body += chunk
                 data.on "end", ->
                     candles = JSON.parse(body).candles
-                    zmq_socket = zmq.socket('req')
-                    zmq_socket.connect("tcp://localhost:41932")
-                    zmq_socket.send JSON.stringify
+                    zmq_object =
                         fun: "stoch"
                         args:
                             HLC: candles.map (d) ->
@@ -122,9 +113,9 @@ module.exports =
                             nFastK: 14
                             nFastD: 3
                             nSlowD: 3
-                    zmq_socket.on 'message', (data) ->
+                    zmqUtils.send zmq_object, (data) ->
                         console.log "stoch answer data: #{data}"
-                        res.json JSON.parse("" + data).map (d, i) ->
+                        res.json rUtils.filter_NA(data).map (d, i) ->
                             time: candles[i].time
                             value: d
             .on 'error', (e) ->
@@ -142,17 +133,15 @@ module.exports =
                     body += chunk
                 data.on "end", ->
                     candles = JSON.parse(body).candles
-                    zmq_socket = zmq.socket('req')
-                    zmq_socket.connect("tcp://localhost:41932")
-                    zmq_socket.send JSON.stringify
+                    zmq_object =
                         fun: "SMA"
                         args:
                             x: candles.map (d) ->
                                 d.highMid - d.lowMid
                             n: 14
-                    zmq_socket.on 'message', (data) ->
+                    zmqUtils.send zmq_object, (data) ->
                         console.log "adr answer data: #{data}"
-                        res.json JSON.parse("" + data).map (d, i) ->
+                        res.json rUtils.filter_NA(data).map (d, i) ->
                             time: candles[i].time
                             value: d * 1e4 # multiply by pip value
             .on 'error', (e) ->
