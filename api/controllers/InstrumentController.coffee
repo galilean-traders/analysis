@@ -21,11 +21,7 @@ module.exports = {
         name = req.param 'name'
         request = http.request {
                 port: 1337
-<<<<<<< Updated upstream
-                path: "/api/instrument/rawdata?name=#{name}"
-=======
                 path: "/instrument/rawdata?name=#{name}&granularity=M5&count=20"
->>>>>>> Stashed changes
             }, (data) ->
                 body = ""
                 data.on "data", (chunk) ->
@@ -87,7 +83,7 @@ module.exports = {
                         console.log('answer data ' + data)
                         res.json JSON.parse("" + data).map (d, i) ->
                             {
-                                time: candles[1].time
+                                time: candles[i].time
                                 value: d
                             }
                     )
@@ -126,7 +122,7 @@ module.exports = {
                         console.log('answer data ' + data)
                         res.json JSON.parse("" + data).map (d, i) ->
                             {
-                                time: candles[1].time
+                                time: candles[i].time
                                 value: d
                             }
                     )
@@ -138,7 +134,7 @@ module.exports = {
         name = req.param 'name'
         request = http.request {
                 port: 1337
-                path: "/instrument/rawdata?name=#{name}&granularity=D&count=20"
+                path: "/instrument/rawdata?name=#{name}&granularity=D&count=60"
             }, (data) ->
                 body = ""
                 data.on "data", (chunk) ->
@@ -163,7 +159,7 @@ module.exports = {
                         console.log('answer data ' + data)
                         res.json JSON.parse("" + data).map (d, i) ->
                             {
-                                time: candles[1].time
+                                time: candles[i].time
                                 value: d
                             }
                     )
