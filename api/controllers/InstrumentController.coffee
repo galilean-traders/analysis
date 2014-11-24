@@ -148,13 +148,13 @@ module.exports =
                         fun: "SMA"
                         args:
                             x: candles.map (d) ->
-                                d.closeMid - d.openMid
+                                d.highMid - d.lowMid
                             n: 14
                     zmq_socket.on 'message', (data) ->
                         console.log "adr answer data: #{data}"
                         res.json JSON.parse("" + data).map (d, i) ->
                             time: candles[i].time
-                            value: d
+                            value: d * 1e4 # multiply by pip value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
         request.end()
