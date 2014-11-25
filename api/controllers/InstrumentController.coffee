@@ -36,9 +36,9 @@ module.exports =
                             n: 5
                     zmqUtils.send zmq_object, (data) ->
                         console.log "ema5 answer data: #{data}"
-                        res.json rUtils.filter_NA(data).map (d, i) ->
-                            time: candles[i].time
-                            value: d
+                        res.json rUtils.filter_NA(data).map (d) ->
+                            time: candles[d.index].time
+                            value: d.value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
         request.end()
@@ -63,9 +63,9 @@ module.exports =
                             n: 10
                     zmqUtils.send zmq_object, (data) ->
                         console.log "ema10 answer data: #{data}"
-                        res.json rUtils.filter_NA(data).map (d, i) ->
-                            time: candles[i].time
-                            value: d
+                        res.json rUtils.filter_NA(data).map (d) ->
+                            time: candles[d.index].time
+                            value: d.value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
         request.end()
@@ -90,9 +90,9 @@ module.exports =
                             n: 14
                     zmqUtils.send zmq_object, (data) ->
                         console.log "rsi answer data: #{data}"
-                        res.json rUtils.filter_NA(data).map (d, i) ->
-                            time: candles[i].time
-                            value: d
+                        res.json rUtils.filter_NA(data).map (d) ->
+                            time: candles[d.index].time
+                            value: d.value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
         request.end()
@@ -119,9 +119,9 @@ module.exports =
                             nSlowD: 3
                     zmqUtils.send zmq_object, (data) ->
                         console.log "stoch answer data: #{data}"
-                        res.json rUtils.filter_NA(data).map (d, i) ->
-                            time: candles[i].time
-                            value: d
+                        res.json rUtils.filter_NA(data).map (d) ->
+                            time: candles[d.index].time
+                            value: d.value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
         request.end()
@@ -146,9 +146,9 @@ module.exports =
                             n: 14
                     zmqUtils.send zmq_object, (data) ->
                         console.log "adr answer data: #{data}"
-                        res.json rUtils.filter_NA(data).map (d, i) ->
-                            time: candles[i].time
-                            value: d * 1e4 # multiply by pip value
+                        res.json rUtils.filter_NA(data).map (d) ->
+                            time: candles[d.index].time
+                            value: d.value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
         request.end()
