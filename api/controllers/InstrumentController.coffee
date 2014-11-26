@@ -102,7 +102,7 @@ module.exports =
         count = parseInt(req.param('count')) or 20
         request = http.request {
                 port: 1337
-                path: "/api/instrument/rawdata?name=#{name}&granularity=M5&count=#{14 + count}"
+                path: "/api/instrument/rawdata?name=#{name}&granularity=M5&count=#{18 + count}"
             }, (data) ->
                 body = ""
                 data.on "data", (chunk) ->
@@ -110,18 +110,32 @@ module.exports =
                 data.on "end", ->
                     candles = JSON.parse(body).candles
                     zmq_object =
-                        fun: "stoch"
+                        fun: "stoch.json"
                         args:
-                            HLC: candles.map (d) ->
-                                d.closeMid
-                            nFastK: 14
-                            nFastD: 3
-                            nSlowD: 3
+                            data: candles
                     zmqUtils.send zmq_object, (data) ->
-                        console.log "stoch answer data: #{data}"
-                        res.json rUtils.filter_NA(data).map (d) ->
-                            time: candles[d.index].time
-                            value: 100 * d.value
+                        output = JSON.parse "#{data}"
+                        response = [{
+                            name: "fastK"
+                            values: output.fastK.map (d, i) ->
+                                time: candles[i].time
+                                value: d
+                        },{
+                            name: "fastD"
+                            values: output.fastD.map (d, i) ->
+                                time: candles[i].time
+                                value: d
+                        },{
+                            name: "slowD"
+                            values: output.slowD.map (d, i) ->
+                                time: candles[i].time
+                                value: d
+                        }]
+                        # return only values for which slowD is not NA
+                        res.json response.map (d) ->
+                            name: d.name
+                            values: d.values.filter (e, i) ->
+                                response[2].values[i].value isnt "NA"
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
         request.end()
