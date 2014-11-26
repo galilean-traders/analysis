@@ -121,7 +121,7 @@ module.exports =
                         console.log "stoch answer data: #{data}"
                         res.json rUtils.filter_NA(data).map (d) ->
                             time: candles[d.index].time
-                            value: d.value
+                            value: 100 * d.value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
         request.end()
@@ -148,7 +148,7 @@ module.exports =
                         console.log "adr answer data: #{data}"
                         res.json rUtils.filter_NA(data).map (d) ->
                             time: candles[d.index].time
-                            value: d.value
+                            value: 1e4 * d.value # times pip value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
         request.end()
