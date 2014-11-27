@@ -12,7 +12,11 @@ module.exports =
         granularity = req.param 'granularity'
         count = req.param 'count'
         https.get "https://api-sandbox.oanda.com/v1/candles?instrument=#{name}&count=#{count}&candleFormat=midpoint&granularity=#{granularity}&dailyAlignment=0&alignmentTimezone=Europe%2FZurich", (data) ->
-            data.pipe res
+            body = ""
+            data.on "data", (chunk) ->
+                body += chunk
+            data.on "end", ->
+                res.send body
         .on 'error', (e) ->
             console.warn "ERROR: #{e.message}" 
 
