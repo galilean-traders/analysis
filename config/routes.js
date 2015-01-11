@@ -46,4 +46,16 @@ module.exports.routes = {
   *                                                                          *
   ***************************************************************************/
 
+  'GET /login': {
+      controller: 'UserController',
+      action: 'login'
+  },
+  'POST /login': {
+      controller: 'UserController',
+      action: 'login'
+  },
+  'GET /logout': {
+      controller: 'UserController',
+      action: 'logout'
+  }
 };
