@@ -45,6 +45,7 @@ module.exports =
                             value: d.value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
+        request.setHeader("access-token", req.headers["access-token"])
         request.end()
 
     ema10: (req, res) ->
@@ -72,6 +73,7 @@ module.exports =
                             value: d.value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
+        request.setHeader("access-token", req.headers["access-token"])
         request.end()
 
     rsi: (req, res) ->
@@ -99,6 +101,7 @@ module.exports =
                             value: d.value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
+        request.setHeader("access-token", req.headers["access-token"])
         request.end()
 
     stoch: (req, res) ->
@@ -142,6 +145,7 @@ module.exports =
                                 response[2].values[i].value isnt "NA"
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
+        request.setHeader("access-token", req.headers["access-token"])
         request.end()
 
     adr: (req, res) ->
@@ -169,4 +173,5 @@ module.exports =
                             value: 1e4 * d.value # times pip value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
+        request.setHeader("access-token", req.headers["access-token"])
         request.end()
