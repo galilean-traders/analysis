@@ -8,10 +8,8 @@
 
 module.exports =
   attributes: require('waterlock').models.user.attributes(
-    
-    #/* e.g.
-    #nickname: 'string'
-    #*/
+      oanda_token: "string"
+      account_type: "string"
   )
   beforeCreate: require('waterlock').models.user.beforeCreate
   beforeUpdate: require('waterlock').models.user.beforeUpdate

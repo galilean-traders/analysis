@@ -25,4 +25,13 @@ module.exports = require('waterlock').actions.user(
                             res.json err
                         else
                             waterlock.cycle.loginSuccess req, res, ua
+
+    update: (req, res) ->
+        token = waterlock.jwt.decode req.headers['access-token'], waterlock.config.jsonWebTokens.secret
+        waterlock.validator.findUserFromToken token, (err, user) ->
+            User.update user.id, req.body, (err, users) ->
+                if err?
+                    console.log err
+                else
+                    res.json users
 )
