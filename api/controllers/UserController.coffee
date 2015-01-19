@@ -17,12 +17,12 @@ module.exports = require('waterlock').actions.user(
         User
             .create params
             .exec (err, user) ->
-            if err
-                console.log err
-            else
-                waterlock.engine.attachAuthToUser auth, user, (err, ua) ->
-                    if err
-                        res.json err
-                    else
-                        waterlock.cycle.loginSuccess req, res, ua
+                if err?
+                    console.log err
+                else
+                    waterlock.engine.attachAuthToUser auth, user, (err, ua) ->
+                        if err?
+                            res.json err
+                        else
+                            waterlock.cycle.loginSuccess req, res, ua
 )

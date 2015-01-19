@@ -29,8 +29,10 @@ module.exports.policies = {
     '*': "hasJsonWebToken",
     UserController: {
         "create": true,
-        "login": true,
     },
+    AuthController: {
+        "login": true,
+    }
 
   /***************************************************************************
   *                                                                          *
