@@ -31,7 +31,8 @@ module.exports =
                         res.send body
                 .on 'error', (e) ->
                     console.warn "ERROR: #{e.message}" 
-            request.setHeader "Authorization", "Bearer #{oanda_token}"
+            unless user.account_type is "sandbox"
+                request.setHeader "Authorization", "Bearer #{oanda_token}"
             request.end()
 
     ema5: (req, res) ->
