@@ -37,9 +37,24 @@ module.exports = require('waterlock').actions.user(
     update: (req, res) ->
         token = waterlock.jwt.decode req.headers['access-token'], waterlock.config.jsonWebTokens.secret
         waterlock.validator.findUserFromToken token, (err, user) ->
-            User.update user.id, req.body, (err, users) ->
-                if err?
-                    console.log err
-                else
-                    res.json users
+            if err?
+                res.forbidden()
+            User.findOne user.id
+                .exec (_err, _user) ->
+                    if _err?
+                        console.log err
+                        res.badRequest()
+                    if req.body.email
+                        _user.auth.email = req.body.email
+                    if req.body.password
+                        _user.auth.password = req.body.password
+                    if req.body.account_type
+                        _user.account_type = req.body.account_type
+                    if req.body.oanda_token
+                        _user.oanda_token = req.body.oanda_token
+                    _user.save (__err) ->
+                        if __err?
+                            console.log __err
+                            res.badRequest __err
+                        res.json _user
 )
