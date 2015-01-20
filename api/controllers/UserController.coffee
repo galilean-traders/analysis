@@ -26,7 +26,7 @@ module.exports = require('waterlock').actions.user(
                         else
                             waterlock.cycle.loginSuccess req, res, ua
 
-    read: (req, res) ->
+    findOne: (req, res) ->
         token = waterlock.jwt.decode req.headers['access-token'], waterlock.config.jsonWebTokens.secret
         waterlock.validator.findUserFromToken token, (err, user) ->
             if err?
