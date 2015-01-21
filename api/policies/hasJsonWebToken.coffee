@@ -11,8 +11,15 @@ module.exports = (req, res, next) ->
     # copy headers as in:
     # https://github.com/waterlock/waterlock/issues/43
     waterlock.validator.validateTokenRequest req, (err, user) ->
-        console.log err, user
         if err?
+            console.log "authentication error", err
             return res.forbidden err
-        # valid request
-        next()
+        # valid request, save user to the request
+        Auth.findOne user.auth
+            .exec (err, auth) ->
+                if err?
+                    console.log "authentication error", err
+                    return res.forbidden err
+                req.user = user
+                req.user.email = auth.email
+                next()

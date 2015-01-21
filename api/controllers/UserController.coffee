@@ -26,35 +26,21 @@ module.exports = require('waterlock').actions.user(
                         else
                             waterlock.cycle.loginSuccess req, res, ua
 
-    findOne: (req, res) ->
-        token = waterlock.jwt.decode req.headers['access-token'], waterlock.config.jsonWebTokens.secret
-        waterlock.validator.findUserFromToken token, (err, user) ->
-            if err?
-                res.notFound()
-            else
-                res.json user
+    findOne: (req, res) -> res.json req.user
 
     update: (req, res) ->
-        token = waterlock.jwt.decode req.headers['access-token'], waterlock.config.jsonWebTokens.secret
-        waterlock.validator.findUserFromToken token, (err, user) ->
+        user = req.user
+        if req.body.email
+            user.auth.email = req.body.email
+        if req.body.password
+            user.auth.password = req.body.password
+        if req.body.account_type
+            user.account_type = req.body.account_type
+        if req.body.oanda_token
+            user.oanda_token = req.body.oanda_token
+        user.save (err) ->
             if err?
-                res.forbidden()
-            User.findOne user.id
-                .exec (_err, _user) ->
-                    if _err?
-                        console.log err
-                        res.badRequest()
-                    if req.body.email
-                        _user.auth.email = req.body.email
-                    if req.body.password
-                        _user.auth.password = req.body.password
-                    if req.body.account_type
-                        _user.account_type = req.body.account_type
-                    if req.body.oanda_token
-                        _user.oanda_token = req.body.oanda_token
-                    _user.save (__err) ->
-                        if __err?
-                            console.log __err
-                            res.badRequest __err
-                        res.json _user
+                console.log err
+                res.badRequest err
+            res.json user
 )

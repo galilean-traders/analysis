@@ -27,7 +27,7 @@
     "sails-disk": "~0.10.0",
     "waterlock": "git+https://git@github.com/Globegitter/waterlock.git#return-jwt-no-redirect",
     "waterlock-local-auth": "0.0.5",
-    "zmq": "^2.8.0"
+    "zmq": "^2.9.0"
   },
   "scripts": {
     "start": "node app.js",
