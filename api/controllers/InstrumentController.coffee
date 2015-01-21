@@ -34,6 +34,40 @@ module.exports =
             unless user.account_type is "sandbox"
                 request.setHeader "Authorization", "Bearer #{oanda_token}"
             request.end()
+###
+    neworder: (req, res) ->
+        token = global.waterlock.jwt.decode req.headers['access-token'], global.waterlock.config.jsonWebTokens.secret
+        global.waterlock.validator.findUserFromToken token, (err, user) ->
+            if err?
+                res.forbidden err
+            oanda_token = user.oanda_token
+            if user.account_type=="sandbox"
+                console.warn "ERROR: sandbox type accounts do not allow order placement"
+                return
+            server = switch
+                when user.account_type is "practice" then "api-fxpractice"
+                when user.account_type is "trade" then "api-fxtrade"
+            
+            name = req.param 'name'
+            granularity = req.param 'granularity'
+            count = req.param 'count'
+            
+            request = https.request {
+                method: "POST"
+                hostname: "#{server}.oanda.com"
+                path: "v1/accounts/12345/orders"
+                }, (data) ->
+                    body = ""
+                    data.on "data", (chunk) ->
+                        body += chunk
+                    data.on "end", ->
+                        res.send body
+                .on 'error', (e) ->
+                    console.warn "ERROR: #{e.message}" 
+            unless user.account_type is "sandbox"
+                request.setHeader "Authorization", "Bearer #{oanda_token}"
+            request.end()
+###
 
     ema5: (req, res) ->
         name = req.param 'name'
