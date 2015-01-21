@@ -50,10 +50,12 @@ module.exports =
                                 res.json response
                         .on 'error', (e) ->
                             console.warn "ERROR: #{e.message}" 
+                            res.serverError e
                     request_ema10.setHeader("access-token", req.headers["access-token"])
                     request_ema10.end()
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
+                res.serverError e
         request.setHeader("access-token", req.headers["access-token"])
         request.end()
 
@@ -88,6 +90,7 @@ module.exports =
                     res.json response
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
+                res.serverError e
         request.setHeader("access-token", req.headers["access-token"])
         request.end()
 
@@ -113,6 +116,7 @@ module.exports =
                     res.json response
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
+                res.serverError e
         request.setHeader("access-token", req.headers["access-token"])
         request.end()
 
@@ -146,5 +150,6 @@ module.exports =
                     res.json response
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
+                res.serverError e
         request.setHeader("access-token", req.headers["access-token"])
         request.end()

@@ -31,6 +31,7 @@ module.exports =
                         res.send body
                 .on 'error', (e) ->
                     console.warn "ERROR: #{e.message}" 
+                    res.serverError e
             unless user.account_type is "sandbox"
                 request.setHeader "Authorization", "Bearer #{oanda_token}"
             request.end()
@@ -60,6 +61,7 @@ module.exports =
                             value: d.value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
+                res.serverError e
         request.setHeader("access-token", req.headers["access-token"])
         request.end()
 
@@ -88,6 +90,7 @@ module.exports =
                             value: d.value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
+                res.serverError e
         request.setHeader("access-token", req.headers["access-token"])
         request.end()
 
@@ -116,6 +119,7 @@ module.exports =
                             value: d.value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
+                res.serverError e
         request.setHeader("access-token", req.headers["access-token"])
         request.end()
 
@@ -160,6 +164,7 @@ module.exports =
                                 response[2].values[i].value isnt "NA"
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
+                res.serverError e
         request.setHeader("access-token", req.headers["access-token"])
         request.end()
 
@@ -188,5 +193,6 @@ module.exports =
                             value: 1e4 * d.value # times pip value
             .on 'error', (e) ->
                 console.warn "ERROR: #{e.message}" 
+                res.serverError e
         request.setHeader("access-token", req.headers["access-token"])
         request.end()
