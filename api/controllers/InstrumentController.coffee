@@ -10,15 +10,11 @@ module.exports =
     rawdata: (req, res) ->
         user = req.user
         oanda_token = user.oanda_token
-        server = switch
-            when user.account_type is "sandbox" then "api-sandbox"
-            when user.account_type is "practice" then "api-fxpractice"
-            when user.account_type is "trade" then "api-fxtrade"
         name = req.param 'name'
         granularity = req.param 'granularity'
         count = req.param 'count'
         request = https.request {
-            hostname: "#{server}.oanda.com"
+            hostname: oandaServer user.account_type
             path: "/v1/candles?instrument=#{name}&count=#{count}&candleFormat=midpoint&granularity=#{granularity}&dailyAlignment=0&alignmentTimezone=Europe%2FZurich"
             }, (data) ->
                 body = ""
