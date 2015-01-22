@@ -9,7 +9,6 @@ http = require "http"
 module.exports =
     rawdata: (req, res) ->
         user = req.user
-        console.log "rawdata got user from middleware:", user
         oanda_token = user.oanda_token
         server = switch
             when user.account_type is "sandbox" then "api-sandbox"
