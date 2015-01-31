@@ -6,6 +6,7 @@
 https = require "https"
 http = require "http"
 fs = require "fs"
+request_module = require "request"
 
 module.exports =
     rawdata: (req, res) ->
@@ -38,23 +39,25 @@ module.exports =
         start = req.param 'start'
         end = req.param 'end'
         console.log "qui arriva", start, end
-        request = https.request {
-            hostname: oandaServer user.account_type
-            path: "/v1/candles?instrument=#{name}&start=#{start}&end=#{end}&candleFormat=midpoint&granularity=#{granularity}&dailyAlignment=0&alignmentTimezone=Europe%2FZurich"
-            }, (data) ->
-                console.log "/v1/candles?instrument=#{name}&start=#{start}&end=#{end}&candleFormat=midpoint&granularity=#{granularity}&dailyAlignment=0&alignmentTimezone=Europe%2FZurich"
-                body = ""
-                data.on "data", (chunk) ->
-                    body += chunk
-                data.on "end", ->
-                    fs.writeFile "data_oanda.dat", body, (error) ->
-                        console.error("Error writing file", error) if error
-            .on 'error', (e) ->
-                console.warn "ERROR: #{e.message}" 
-                res.serverError e
+        options =
+            url: "https://#{oandaServer req.user.account_type}/v1/candles"
+            qs:
+                instrument: name
+                start: start
+                end: end
+                candleFormat: "midpoint"
+                granularity: granularity
+                dailyAlignment: 0
+                alignmentTimezone: "Europe/Zurich"
         unless user.account_type is "sandbox"
-            request.setHeader "Authorization", "Bearer #{oanda_token}"
-        request.end()
+            options.headers =
+                authorization: "Bearer #{req.user.oanda_token}"
+
+        request_module options, (error, response, body) ->
+            if error?
+                console.ward error
+                res.serverError error
+            res.json body
 
     ema5: (req, res) ->
         name = req.param 'name'
