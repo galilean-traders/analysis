@@ -5,6 +5,7 @@
 
 https = require "https"
 http = require "http"
+fs = require "fs"
 
 module.exports =
     rawdata: (req, res) ->
@@ -28,68 +29,32 @@ module.exports =
         unless user.account_type is "sandbox"
             request.setHeader "Authorization", "Bearer #{oanda_token}"
         request.end()
-###
-        token = global.waterlock.jwt.decode req.headers['access-token'], global.waterlock.config.jsonWebTokens.secret
-        global.waterlock.validator.findUserFromToken token, (err, user) ->
-            if err?
-                res.forbidden err
-            oanda_token = user.oanda_token
-            server = switch
-                when user.account_type is "sandbox" then "api-sandbox"
-                when user.account_type is "practice" then "api-fxpractice"
-                when user.account_type is "trade" then "api-fxtrade"
-            name = req.param 'name'
-            granularity = req.param 'granularity'
-            count = req.param 'count'
-            request = https.request {
-                hostname: "#{server}.oanda.com"
-                path: "/v1/candles?instrument=#{name}&count=#{count}&candleFormat=midpoint&granularity=#{granularity}&dailyAlignment=0&alignmentTimezone=Europe%2FZurich"
-                }, (data) ->
-                    body = ""
-                    data.on "data", (chunk) ->
-                        body += chunk
-                    data.on "end", ->
-                        res.send body
-                .on 'error', (e) ->
-                    console.warn "ERROR: #{e.message}" 
-            unless user.account_type is "sandbox"
-                request.setHeader "Authorization", "Bearer #{oanda_token}"
-            request.end()
-###
-###
-    neworder: (req, res) ->
-        token = global.waterlock.jwt.decode req.headers['access-token'], global.waterlock.config.jsonWebTokens.secret
-        global.waterlock.validator.findUserFromToken token, (err, user) ->
-            if err?
-                res.forbidden err
-            oanda_token = user.oanda_token
-            if user.account_type=="sandbox"
-                console.warn "ERROR: sandbox type accounts do not allow order placement"
-                return
-            server = switch
-                when user.account_type is "practice" then "api-fxpractice"
-                when user.account_type is "trade" then "api-fxtrade"
-            
-            name = req.param 'name'
-            granularity = req.param 'granularity'
-            count = req.param 'count'
-            
-            request = https.request {
-                method: "POST"
-                hostname: "#{server}.oanda.com"
-                path: "v1/accounts/12345/orders"
-                }, (data) ->
-                    body = ""
-                    data.on "data", (chunk) ->
-                        body += chunk
-                    data.on "end", ->
-                        res.send body
-                .on 'error', (e) ->
-                    console.warn "ERROR: #{e.message}" 
-            unless user.account_type is "sandbox"
-                request.setHeader "Authorization", "Bearer #{oanda_token}"
-            request.end()
-###
+
+    historical: (req, res) ->
+        user = req.user
+        oanda_token = user.oanda_token
+        name = req.param 'name'
+        granularity = req.param 'granularity'
+        start = req.param 'start'
+        end = req.param 'end'
+        console.log "qui arriva", start, end
+        request = https.request {
+            hostname: oandaServer user.account_type
+            path: "/v1/candles?instrument=#{name}&start=#{start}&end=#{end}&candleFormat=midpoint&granularity=#{granularity}&dailyAlignment=0&alignmentTimezone=Europe%2FZurich"
+            }, (data) ->
+                console.log "/v1/candles?instrument=#{name}&start=#{start}&end=#{end}&candleFormat=midpoint&granularity=#{granularity}&dailyAlignment=0&alignmentTimezone=Europe%2FZurich"
+                body = ""
+                data.on "data", (chunk) ->
+                    body += chunk
+                data.on "end", ->
+                    fs.writeFile "data_oanda.dat", body, (error) ->
+                        console.error("Error writing file", error) if error
+            .on 'error', (e) ->
+                console.warn "ERROR: #{e.message}" 
+                res.serverError e
+        unless user.account_type is "sandbox"
+            request.setHeader "Authorization", "Bearer #{oanda_token}"
+        request.end()
 
     ema5: (req, res) ->
         name = req.param 'name'
