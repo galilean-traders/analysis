@@ -6,6 +6,7 @@
 https = require "https"
 http = require "http"
 request_module = require "request"
+cache = require "memory-cache"
 
 module.exports =
     rawdata: (req, res) ->
@@ -22,11 +23,24 @@ module.exports =
             options.headers =
                 authorization: "Bearer #{req.user.oanda_token}"
 
+        etag = cache.get "etag"
+        cached = cache.get "cached"
+        console.log etag, cached
+        if etag? and cached?
+            options.headers["If-None-Match"] = etag
+            console.log "cached with etag", etag, "and body", cached
         request_module options, (error, response, body) ->
             if error?
                 console.warn error
                 res.serverError error
-            res.json body
+            console.log response.statusCode
+            if response.statusCode is 304
+                console.log "sending cached"
+                res.json cached
+            else
+                cache.put "etag", response.headers["etag"]
+                cache.put "cached", body
+                res.json body
 
     historical: (req, res) ->
         options =
