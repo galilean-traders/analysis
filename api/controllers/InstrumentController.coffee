@@ -5,57 +5,47 @@
 
 https = require "https"
 http = require "http"
-fs = require "fs"
 request_module = require "request"
 
 module.exports =
     rawdata: (req, res) ->
-        user = req.user
-        oanda_token = user.oanda_token
-        name = req.param 'name'
-        granularity = req.param 'granularity'
-        count = req.param 'count'
-        request = https.request {
-            hostname: oandaServer user.account_type
-            path: "/v1/candles?instrument=#{name}&count=#{count}&candleFormat=midpoint&granularity=#{granularity}&dailyAlignment=0&alignmentTimezone=Europe%2FZurich"
-            }, (data) ->
-                body = ""
-                data.on "data", (chunk) ->
-                    body += chunk
-                data.on "end", ->
-                    res.send body
-            .on 'error', (e) ->
-                console.warn "ERROR: #{e.message}" 
-                res.serverError e
-        unless user.account_type is "sandbox"
-            request.setHeader "Authorization", "Bearer #{oanda_token}"
-        request.end()
-
-    historical: (req, res) ->
-        user = req.user
-        oanda_token = user.oanda_token
-        name = req.param 'name'
-        granularity = req.param 'granularity'
-        start = req.param 'start'
-        end = req.param 'end'
-        console.log "qui arriva", start, end
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/candles"
             qs:
-                instrument: name
-                start: start
-                end: end
-                candleFormat: "midpoint"
-                granularity: granularity
+                instrument: req.param 'name'
+                count: req.param 'count'
+                granularity: req.param 'granularity'
+                candleFormat: 'midpoint'
                 dailyAlignment: 0
                 alignmentTimezone: "Europe/Zurich"
-        unless user.account_type is "sandbox"
+        unless req.user.account_type is "sandbox"
             options.headers =
                 authorization: "Bearer #{req.user.oanda_token}"
 
         request_module options, (error, response, body) ->
             if error?
-                console.ward error
+                console.warn error
+                res.serverError error
+            res.json body
+
+    historical: (req, res) ->
+        options =
+            url: "https://#{oandaServer req.user.account_type}/v1/candles"
+            qs:
+                instrument: req.param 'name'
+                start: req.param 'start'
+                end: req.param 'end'
+                granularity: req.param 'granularity'
+                candleFormat: 'midpoint'
+                dailyAlignment: 0
+                alignmentTimezone: "Europe/Zurich"
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                authorization: "Bearer #{req.user.oanda_token}"
+
+        request_module options, (error, response, body) ->
+            if error?
+                console.warn error
                 res.serverError error
             res.json body
 
