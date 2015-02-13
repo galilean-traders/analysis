@@ -9,7 +9,7 @@ module.exports =
     index: (req, res) ->
         #'GET /v1/accounts'
         # http://developer.oanda.com/rest-live/accounts/#getAccountsForUser
-        options:
+        options =
             url: "https://#{oandaServer req.user.account_type}/v1/accounts"
         unless req.user.account_type is "sandbox"
             options.headers =
@@ -18,7 +18,7 @@ module.exports =
             if error?
                 console.warn error
                 res.serverError error
-            res.json body
+            res.json JSON.parse(body).accounts
 
     findOne: (req, res) ->
         options:

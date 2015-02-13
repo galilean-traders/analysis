@@ -10,6 +10,7 @@ module.exports =
   attributes: require('waterlock').models.user.attributes(
       oanda_token: "string"
       account_type: "string"
+      account_id: "string"
   )
   beforeCreate: require('waterlock').models.user.beforeCreate
   beforeUpdate: require('waterlock').models.user.beforeUpdate

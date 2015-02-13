@@ -3,10 +3,25 @@
  # @description :: Server-side logic for managing instruments
  # @help        :: See http://links.sailsjs.org/docs/controllers
 
-request_module = require "request"
+request = require "request"
 padding = 18
 
 module.exports =
+    index: (req, res) ->
+        options =
+            url: "https://#{oandaServer req.user.account_type}/v1/instruments"
+            qs:
+                accountId: req.user.account_id
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                    authorization: "Bearer #{req.user.oanda_token}"
+        request options, (error, response, body) ->
+            if error?
+                console.warn error
+                res.serverError error
+            res.json JSON.parse(body).instruments
+
+
     rawdata: (req, res) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/candles"
@@ -25,7 +40,7 @@ module.exports =
         cached = memoryCache.get "cached"
         if etag and cached
             options.headers["If-None-Match"] = etag.etag
-        request_module options, (error, response, body) ->
+        request options, (error, response, body) ->
             if error?
                 console.warn "ERROR rawdata", error
                 res.serverError error
@@ -54,7 +69,7 @@ module.exports =
             options.headers =
                 authorization: "Bearer #{req.user.oanda_token}"
 
-        request_module options, (error, response, body) ->
+        request options, (error, response, body) ->
             if error?
                 console.warn error
                 res.serverError error

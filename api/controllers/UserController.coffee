@@ -38,6 +38,8 @@ module.exports = require('waterlock').actions.user(
             user.account_type = req.body.account_type
         if req.body.oanda_token
             user.oanda_token = req.body.oanda_token
+        if req.body.account_id
+            user.account_id = req.body.account_id
         user.save (err) ->
             if err?
                 console.log err
