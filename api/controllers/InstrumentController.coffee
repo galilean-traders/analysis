@@ -23,27 +23,12 @@ module.exports =
             options.headers =
                 authorization: "Bearer #{req.user.oanda_token}"
 
-        etag = memoryCache.get "etag"
-        cached = memoryCache.get "cached"
-        console.log etag, cached
-        if etag and cached
-            options.headers["If-None-Match"] = etag
-            console.log "cached with etag", etag, "and body", cached
         request_module options, (error, response, body) ->
             if error?
                 console.warn "ERROR rawdata", error
                 res.serverError error
-            console.log response.statusCode
-            json = JSON.parse body
-            if response.statusCode is 304
-                console.log "sending cached"
-                res.json cached
-            else
-                memoryCache.set "etag", response.headers["etag"]
-                memoryCache.set "cached", json
-                console.log "cached", response.headers["etag"], JSON.parse(body).candles[0]
-                console.log "first candle", json.candles[0]
-                res.json json
+            console.log "response status code", response.statusCode, response
+            res.json JSON.parse(body).candles
 
     historical: (req, res) ->
         options =
@@ -64,8 +49,7 @@ module.exports =
             if error?
                 console.warn error
                 res.serverError error
-            json = JSON.parse body
-            res.json json
+            res.json JSON.parse(body).candles
 
     ema5: (req, res) ->
         count = parseInt(req.param('count')) or 20
@@ -77,11 +61,11 @@ module.exports =
                 granularity: "M5"
             headers:
                 "access-token": req.headers["access-token"]
-        request_module options, (error, response, body) ->
+        request_module options, (error, response, candles) ->
             if error?
                 console.warn error
                 res.serverError error
-            candles = body.candles
+            candles = JSON.parse candles
             zmq_object =
                 fun: "EMA"
                 args:
@@ -104,11 +88,12 @@ module.exports =
                 granularity: "M5"
             headers:
                 "access-token": req.headers["access-token"]
-        request_module options, (error, response, body) ->
+        request_module options, (error, response, candles) ->
+            console.log "EMA5 type of candles", typeof candles
             if error?
                 console.warn error
                 res.serverError error
-            candles = body.candles
+            candles = JSON.parse candles
             zmq_object =
                 fun: "EMA"
                 args:
@@ -131,11 +116,11 @@ module.exports =
                 granularity: "M5"
             headers:
                 "access-token": req.headers["access-token"]
-        request_module options, (error, response, body) ->
+        request_module options, (error, response, candles) ->
             if error?
                 console.warn error
                 res.serverError error
-            candles = body.candles
+            candles = JSON.parse candles
             zmq_object =
                 fun: "RSI"
                 args:
@@ -158,11 +143,11 @@ module.exports =
                 granularity: "M5"
             headers:
                 "access-token": req.headers["access-token"]
-        request_module options, (error, response, body) ->
+        request_module options, (error, response, candles) ->
             if error?
                 console.warn error
                 res.serverError error
-            candles = body.candles
+            candles = JSON.parse candles
             zmq_object =
                 fun: "stoch.json"
                 args:
@@ -201,11 +186,11 @@ module.exports =
                 granularity: "M5"
             headers:
                 "access-token": req.headers["access-token"]
-        request_module options, (error, response, body) ->
+        request_module options, (error, response, candles) ->
             if error?
                 console.warn error
                 res.serverError error
-            candles = body.candles
+            candles = JSON.parse candles
             zmq_object =
                 fun: "SMA"
                 args:
