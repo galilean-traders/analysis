@@ -7,6 +7,7 @@ https = require "https"
 http = require "http"
 fs = require "fs"
 request_module = require "request"
+padding = 18
 
 module.exports =
     rawdata: (req, res) ->
@@ -64,7 +65,7 @@ module.exports =
         count = parseInt(req.param('count')) or 20
         request = http.request {
                 port: 1337
-                path: "/api/instrument/rawdata?name=#{name}&granularity=M5&count=#{4 + count}"
+                path: "/api/instrument/rawdata?name=#{name}&granularity=M5&count=#{padding + count}"
             }, (data) ->
                 body = ""
                 data.on "data", (chunk) ->
@@ -93,7 +94,7 @@ module.exports =
         count = parseInt(req.param('count'))  or 20
         request = http.request {
                 port: 1337
-                path: "/api/instrument/rawdata?name=#{name}&granularity=M5&count=#{9 + count}"
+                path: "/api/instrument/rawdata?name=#{name}&granularity=M5&count=#{padding + count}"
             }, (data) ->
                 body = ""
                 data.on "data", (chunk) ->
@@ -122,7 +123,7 @@ module.exports =
         count = parseInt(req.param('count')) or 20
         request = http.request {
                 port: 1337
-                path: "/api/instrument/rawdata?name=#{name}&granularity=M5&count=#{14 + count}"
+                path: "/api/instrument/rawdata?name=#{name}&granularity=M5&count=#{padding + count}"
             }, (data) ->
                 body = ""
                 data.on "data", (chunk) ->
@@ -151,7 +152,7 @@ module.exports =
         count = parseInt(req.param('count')) or 20
         request = http.request {
                 port: 1337
-                path: "/api/instrument/rawdata?name=#{name}&granularity=M5&count=#{18 + count}"
+                path: "/api/instrument/rawdata?name=#{name}&granularity=M5&count=#{padding + count}"
             }, (data) ->
                 body = ""
                 data.on "data", (chunk) ->
@@ -196,7 +197,7 @@ module.exports =
         count = parseInt(req.param('count')) or 20
         request = http.request {
                 port: 1337
-                path: "/api/instrument/rawdata?name=#{name}&granularity=D&count=#{13 + count}"
+                path: "/api/instrument/rawdata?name=#{name}&granularity=D&count=#{padding + count}"
             }, (data) ->
                 body = ""
                 data.on "data", (chunk) ->
