@@ -3,12 +3,12 @@
  # @description :: Server-side logic for managing instruments
  # @help        :: See http://links.sailsjs.org/docs/controllers
 
-http = require "http"
+request = require "request"
 
 module.exports =
 
     ema5ema10: (req, res) ->
-        name = req.param 'name'
+        candles = req.body
         request = http.request {
                 port: 1337
                 path: "/api/instrument/ema5?name=#{name}&count=15"
