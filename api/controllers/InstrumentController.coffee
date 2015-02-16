@@ -148,7 +148,7 @@ module.exports =
                     response[2].values[i].value isnt "NA"
 
     adr: (req, res) ->
-        candles = req.body
+        candles = req.body.candles
         zmq_object =
             fun: "SMA"
             args:
@@ -159,4 +159,4 @@ module.exports =
             console.log "adr answer data: #{data}"
             res.json rUtils.filter_NA(data).map (d) ->
                 time: candles[d.index].time
-                value: 1e4 * d.value # times pip value
+                value: d.value / req.body.pip

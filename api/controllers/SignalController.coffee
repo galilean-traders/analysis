@@ -82,10 +82,9 @@ module.exports =
             res.json response
 
     adr: (req, res) ->
-        candles = req.body
         options =
             url: "http://127.0.0.1:1337/api/instrument/adr"
-            body: candles
+            body: req.body
             json: true
             headers:
                 "access-token": req.headers["access-token"]
