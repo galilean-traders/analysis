@@ -11,6 +11,7 @@ module.exports =
       oanda_token: "string"
       account_type: "string"
       account_id: "string"
+      favorites: "array"
   )
   beforeCreate: require('waterlock').models.user.beforeCreate
   beforeUpdate: require('waterlock').models.user.beforeUpdate
