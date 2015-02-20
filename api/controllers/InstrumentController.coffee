@@ -5,6 +5,8 @@
 
 request = require "request"
 padding = 18
+RateLimiter = require("limiter").RateLimiter
+limiter = new RateLimiter(2, 'second')
 
 module.exports =
     index: (req, res) ->
@@ -15,11 +17,12 @@ module.exports =
         unless req.user.account_type is "sandbox"
             options.headers =
                     authorization: "Bearer #{req.user.oanda_token}"
-        request options, (error, response, body) ->
-            if error?
-                console.warn error
-                res.serverError error
-            res.json JSON.parse(body).instruments
+        limiter.removeTokens 1, ->
+            request options, (error, response, body) ->
+                if error?
+                    console.warn error
+                    res.serverError error
+                res.json JSON.parse(body).instruments
 
 
     rawdata: (req, res) ->
@@ -40,19 +43,20 @@ module.exports =
         cached = memoryCache.get "cached"
         if etag and cached
             options.headers["If-None-Match"] = etag.etag
-        request options, (error, response, body) ->
-            if error?
-                console.warn "ERROR rawdata", error
-                res.serverError error
-            console.log "status code", response.statusCode
-            json = JSON.parse(body).candles
-            if response.statusCode is 304
-                console.log "sending cached"
-                res.json cached.cached
-            else
-                memoryCache.set "etag", response.headers["etag"]
-                memoryCache.set "cached", json
-                res.json json
+        limiter.removeTokens 1, ->
+            request options, (error, response, body) ->
+                if error?
+                    console.warn "ERROR rawdata", error
+                    res.serverError error
+                console.log "status code", response.statusCode
+                json = JSON.parse(body).candles
+                if response.statusCode is 304
+                    console.log "sending cached"
+                    res.json cached.cached
+                else
+                    memoryCache.set "etag", response.headers["etag"]
+                    memoryCache.set "cached", json
+                    res.json json
 
     historical: (req, res) ->
         options =
@@ -68,12 +72,12 @@ module.exports =
         unless req.user.account_type is "sandbox"
             options.headers =
                 authorization: "Bearer #{req.user.oanda_token}"
-
-        request options, (error, response, body) ->
-            if error?
-                console.warn error
-                res.serverError error
-            res.json JSON.parse(body).candles
+        limiter.removeTokens 1, ->
+            request options, (error, response, body) ->
+                if error?
+                    console.warn error
+                    res.serverError error
+                res.json JSON.parse(body).candles
 
     ema5: (req, res) ->
         candles = req.body

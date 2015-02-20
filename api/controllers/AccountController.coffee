@@ -4,6 +4,8 @@
  # @help        :: See http://links.sailsjs.org/docs/controllers
 
 request = require "request"
+RateLimiter = require("limiter").RateLimiter
+limiter = new RateLimiter(2, 'second')
 
 module.exports = 
     index: (req, res) ->
@@ -14,11 +16,12 @@ module.exports =
         unless req.user.account_type is "sandbox"
             options.headers =
                     authorization: "Bearer #{req.user.oanda_token}"
-        request options, (error, response, body) ->
-            if error?
-                console.warn error
-                res.serverError error
-            res.json JSON.parse(body).accounts
+        limiter.removeTokens 1, ->
+            request options, (error, response, body) ->
+                if error?
+                    console.warn error
+                    res.serverError error
+                res.json JSON.parse(body).accounts
 
     findOne: (req, res) ->
         options:
@@ -28,8 +31,9 @@ module.exports =
         unless req.user.account_type is "sandbox"
             options.headers =
                     authorization: "Bearer #{req.user.oanda_token}"
-        request options, (error, response, body) ->
-            if error?
-                console.warn error
-                res.serverError error
-            res.json body
+        limiter.removeTokens 1, ->
+            request options, (error, response, body) ->
+                if error?
+                    console.warn error
+                    res.serverError error
+                res.json body
