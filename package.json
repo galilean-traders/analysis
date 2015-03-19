@@ -43,5 +43,9 @@
     "url": "git://github.com/abis_m/analysis.git"
   },
   "author": "abis_m",
-  "license": ""
+  "license": "",
+  "devDependencies": {
+    "chai": "^2.1.2",
+    "supertest": "^0.15.0"
+  }
 }
