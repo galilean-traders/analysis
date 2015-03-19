@@ -37,12 +37,12 @@ module.exports =
                 ema10_upwards = ema10[length - 1] > ema10[length - 2]
                 ema5_cross_upwards_ema10 = ema5[length - 1] > ema10[length - 1] and ema5[length - 2] < ema10[length - 2]
                 ema5_cross_downwards_ema10 = ema5[length - 1] < ema10[length - 1] and ema5[length - 2] > ema10[length - 2]
-                long = ema5_upwards and ema10_upwards and ema5_cross_upwards_ema10
-                short = !ema5_upwards and !ema10_upwards and ema5_cross_downwards_ema10
-                if long
-                    value = "long"
-                else if short
-                    value = "short"
+                buy = ema5_upwards and ema10_upwards and ema5_cross_upwards_ema10
+                sell = !ema5_upwards and !ema10_upwards and ema5_cross_downwards_ema10
+                if buy
+                    value = "buy"
+                else if sell
+                    value = "sell"
                 else
                     value = false
                 response =
@@ -68,12 +68,12 @@ module.exports =
             json = json.map (d) -> d.value
             [..., second, first] = json
             upwards = second < first
-            long_values = 50 <= first < 70
-            short_values = 30 <= first < 50
-            if upwards and long_values
-                value = "long"
-            else if !upwards and short_values
-                value = "short"
+            buy_values = 50 <= first < 70
+            sell_values = 30 <= first < 50
+            if upwards and buy_values
+                value = "buy"
+            else if !upwards and sell_values
+                value = "sell"
             else
                 value = false
             response =
@@ -115,9 +115,9 @@ module.exports =
             upwards = second < first
             range = 20 < first < 80
             if upwards and range
-                value = "long"
+                value = "buy"
             else if !upwards and range
-                value = "short"
+                value = "sell"
             else
                 value = false
             response = {
