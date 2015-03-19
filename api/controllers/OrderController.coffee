@@ -7,6 +7,37 @@ request = require "request"
 
 module.exports = {
 
+    create: (req, res) ->
+        options =
+            url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders"
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                authorization: "Bearer #{req.user.oanda_token}"
+        adr = req.body.adr
+        pip = req.body.pip
+        instrument = req.body.instrument
+        side = req.body.side
+        stoploss = 0.1 * adr
+        profittarget = 0.15 * adr
+        trailingstop = 12
+        request "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}", (error, response, body) ->
+            if error?
+                console.warn error
+                res.serverError error
+            balance = JSON.parse(body).balance
+            options.qs =
+                instrument: instrument
+                units: 0.02 * balance
+                side: side
+                stopLoss: stoploss
+                takeProfit: takeprofit
+                trailingStop: trailingstop
+            request.post options, (error, response, body) ->
+                if error?
+                    console.warn error
+                    res.serverError error
+                res.send body
+
     index: (req, res) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders"
