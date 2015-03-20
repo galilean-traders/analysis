@@ -9,9 +9,6 @@ before (done) ->
         sails = server
         if error?
             return done(error)
-        User.create({
-            name: "ciccio"
-        })
         done(error, sails)
 
 after (done) ->

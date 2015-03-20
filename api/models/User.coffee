@@ -21,31 +21,28 @@ module.exports =
         favorites: "array"
     )
 
-    beforeCreate: (params, cb) ->
-        Auth.create {
-            email: params.email
-            password: params.password
-        }
-            .exec (error, auth) ->
-                if error?
-                    console.error error
-                    return cb error
-                else
-                    delete params.email
-                    delete params.password
-                    params.auth = auth.id
-                    cb()
-
-    afterCreate: (newly_created_user, cb) ->
-        Auth.findOne newly_created_user.auth
-            .exec (error, auth) ->
-                if error?
-                    console.error error
-                    return cb error
-                waterlock.engine.attachAuthToUser auth, newly_created_user, (error, ua) ->
-                    if error?
-                        console.error error
-                        return cb error
-                    cb()
-
+    beforeCreate: waterlock.models.user.beforeCreate
     beforeUpdate: waterlock.models.user.beforeUpdate
+    
+    afterCreate: (newly_created_user, cb) ->
+        # sails one-to-one associations are broken
+        # see
+        # http://stackoverflow.com/a/27752329
+        if newly_created_user.auth?
+            Auth.update({id: newly_created_user.auth}, {user: newly_created_user.id}).exec cb
+        else
+            cb()
+
+    beforeDestroy: (values, cb) ->
+        console.log "before destroy", values
+        User.findOne values
+            .exec (error, user) ->
+                console.log "before destroy user found", error
+                console.log "before destroy user found", user
+                Auth.destroy user.auth
+                    .exec (error, auth) ->
+                        console.log "first destroying the auth", error, auth
+                        if error?
+                            cb error
+                        else
+                            cb()
