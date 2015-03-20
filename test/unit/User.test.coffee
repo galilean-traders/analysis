@@ -2,7 +2,7 @@ chai = require "chai"
 chai.config.includeStack = true
 should = chai.should()
 
-describe "User model", ->
+describe "User", ->
 
     new_user = {
         auth:
