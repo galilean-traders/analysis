@@ -7,15 +7,15 @@
 #@docs        :: http://waterlock.ninja/documentation
 
 module.exports = require('waterlock').actions.user(
+
     create: (req, res) ->
         User
             .create params
-            .exec (err, user) ->
-                if err?
-                    console.error err
-                    res.error err
-                else
-                    waterlock.cycle.loginSuccess req, res, ua
+            .then (user) ->
+                waterlock.cycle.loginSuccess req, res, user
+            .catch (error) ->
+                console.error err
+                res.error err
 
     findOne: (req, res) -> res.json req.user
 

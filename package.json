@@ -45,6 +45,7 @@
   "author": "abis_m",
   "license": "",
   "devDependencies": {
-    "chai": "^2.1.2"
+    "chai": "^2.1.2",
+    "supertest": "^0.15.0"
   }
 }
