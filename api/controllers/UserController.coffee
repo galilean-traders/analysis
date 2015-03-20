@@ -17,8 +17,7 @@ whitelist = [
 module.exports = require('waterlock').actions.user(
 
     create: (req, res) ->
-        params = waterlock._utils.allParams req
-        safe_params = _.pick params, whitelist
+        safe_params = _.pick req.body, whitelist
         safe_params.auth =
             email: safe_params.email
             password: safe_params.password
@@ -34,8 +33,7 @@ module.exports = require('waterlock').actions.user(
     findOne: (req, res) -> res.json req.user
 
     update: (req, res) ->
-        params = waterlock._utils.allParams req
-        safe_params = _.pick params, (key) -> key in whitelist
+        safe_params = _.pick req.body, whitelist
         safe_params.auth =
             email: safe_params.email
             password: safe_params.password
@@ -45,6 +43,6 @@ module.exports = require('waterlock').actions.user(
             .then (user) ->
                 res.json user[0]
             .catch (error) ->
-                console.error err
-                res.error err
+                console.error error
+                res.error error
 )
