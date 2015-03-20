@@ -25,6 +25,12 @@ describe "UserController and AuthController", ->
                 .expect 200, done
 
     describe "#login()", ->
+        it "should not login", (done) ->
+            request sails.hooks.http.app
+                .post "/api/auth/login"
+                .send {email: "blah@cj.com", password: "nonexistent"}
+                .expect 403, done
+
         it "should login", (done) ->
             request sails.hooks.http.app
                 .post "/api/auth/login"
@@ -45,6 +51,12 @@ describe "UserController and AuthController", ->
                     token = res.body.token
                     done()
 
+        it "should be forbidden to update account type", (done) ->
+            request sails.hooks.http.app
+                .put "/api/user/update"
+                .send {account_type: "sandbox"}
+                .expect 403, done
+
         it "should update account type", (done) ->
             request sails.hooks.http.app
                 .put "/api/user/update"
@@ -52,6 +64,12 @@ describe "UserController and AuthController", ->
                 .set "access-token", token
                 .expect 'Content-Type', /json/
                 .expect 200, done
+
+        it "should be forbidden to update email", (done) ->
+            request sails.hooks.http.app
+                .put "/api/user/update"
+                .send {email: "se.vuol@ballare.signor.contino"}
+                .expect 403, done
 
         it "should update email", (done) ->
             request sails.hooks.http.app
@@ -68,6 +86,11 @@ describe "UserController and AuthController", ->
                 .set "access-token", token
                 .expect 'Content-Type', /json/
                 .expect 200, done
+
+        it "should be forbidden to delete user", (done) ->
+            request sails.hooks.http.app
+                .delete "/api/user/delete"
+                .expect 403, done
 
         it "should delete user", (done) ->
             request sails.hooks.http.app

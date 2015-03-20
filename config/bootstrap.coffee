@@ -24,7 +24,7 @@ module.exports.bootstrap = (cb) ->
                 console.log now, users
 
     schedule = later.parse.recur()
-        .every(5).second()
+        .every(5).minute()
 
     later.setInterval scheduled_function, schedule
 

@@ -14,6 +14,7 @@ module.exports.waterlock = {
   // used by auth methods for callback URI's using oauth and for password
   // reset links.
   baseUrl: 'http://localhost:1337',
+  log: 'error',
   
   // Auth Method(s) 
   // 
