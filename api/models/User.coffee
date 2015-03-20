@@ -30,18 +30,15 @@ module.exports =
         # http://stackoverflow.com/a/27752329
         if newly_created_user.auth?
             Auth.update {id: newly_created_user.auth}, {user: newly_created_user.id}
-                .exec cb
+                .then cb
         else
             cb()
 
     beforeDestroy: (values, cb) ->
         User.findOne values
-            .exec (error, user) ->
-                if error?
-                    cb error
+            .then (user) ->
                 Auth.destroy user.auth
-                    .exec (error, auth) ->
-                        if error?
-                            cb error
-                        else
-                            cb()
+                    .then (auth) ->
+                        cb()
+                    .catch cb
+            .catch cb

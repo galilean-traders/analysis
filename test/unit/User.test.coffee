@@ -25,6 +25,16 @@ describe "User model", ->
                     done()
                 .catch done
 
+    describe "#update()", ->
+        it "should check the update function", (done) ->
+            User.find().limit(1)
+                .then (user) ->
+                    User.update({id: user.id}, {account_type: "sandbox"})
+                        .then (results) ->
+                            done()
+                        .catch done
+                .catch done
+
     describe "#destroy()", ->
         it "should check the destroy function", (done) ->
             Auth.findOne(email: new_user.auth.email)
