@@ -29,19 +29,18 @@ module.exports =
         # see
         # http://stackoverflow.com/a/27752329
         if newly_created_user.auth?
-            Auth.update({id: newly_created_user.auth}, {user: newly_created_user.id}).exec cb
+            Auth.update {id: newly_created_user.auth}, {user: newly_created_user.id}
+                .exec cb
         else
             cb()
 
     beforeDestroy: (values, cb) ->
-        console.log "before destroy", values
         User.findOne values
             .exec (error, user) ->
-                console.log "before destroy user found", error
-                console.log "before destroy user found", user
+                if error?
+                    cb error
                 Auth.destroy user.auth
                     .exec (error, auth) ->
-                        console.log "first destroying the auth", error, auth
                         if error?
                             cb error
                         else
