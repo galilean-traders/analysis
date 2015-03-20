@@ -34,12 +34,23 @@ module.exports =
         else
             cb()
 
+    beforeUpdate: (values, cb) ->
+        # see comment to afterCreate
+        updated_auth = {}
+        updated_auth.email = values.email if values.email?
+        updated_auth.password = values.password if values.password?
+        if updated_auth
+            delete values.email
+            delete values.password
+            Auth.update values.auth, updated_auth
+                .then (auth) -> cb()
+                .catch cb
+
     beforeDestroy: (values, cb) ->
         # see comment to afterCreate
         User.findOne values
             .then (user) ->
                 Auth.destroy user.auth
-                    .then (auth) ->
-                        cb()
+                    .then (auth) -> cb()
                     .catch cb
             .catch cb

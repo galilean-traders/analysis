@@ -39,12 +39,36 @@ describe "User", ->
                     done()
                 .catch done
 
-    describe "#update()", ->
+    describe "#update() and #destroy()", ->
         auth = undefined
         before (done) ->
             Auth.findOne(email: new_user.auth.email)
                 .then (_auth) ->
                     auth = _auth
+                    done()
+                .catch done
+
+        it "should update the oanda_token", (done) ->
+            User.update({id: auth.user}, {oanda_token: "sadfkalgkjq23l5436ktslkdgndmgnajdfks"})
+                .then (user) ->
+                    user.should.have.length 1
+                    user[0].oanda_token.should.equal "sadfkalgkjq23l5436ktslkdgndmgnajdfks"
+                    done()
+                .catch done
+
+        it "should update the account_id", (done) ->
+            User.update({id: auth.user}, {account_id: "546363473"})
+                .then (user) ->
+                    user.should.have.length 1
+                    user[0].account_id.should.equal "546363473"
+                    done()
+                .catch done
+
+        it "should update the account type", (done) ->
+            User.update({id: auth.user}, {account_type: "sandbox"})
+                .then (user) ->
+                    user.should.have.length 1
+                    user[0].account_type.should.equal "sandbox"
                     done()
                 .catch done
 
@@ -80,16 +104,12 @@ describe "User", ->
                         .catch done
                 .catch done
 
-    describe "#destroy()", ->
-        it "should check the destroy function", (done) ->
-            Auth.findOne(email: new_user.auth.email)
-                .then (auth) ->
-                    User.destroy auth.user
-                        .then (user) ->
-                            User.find(user)
-                                .then (dead_user) ->
-                                    dead_user.should.be.empty
-                                    done()
-                                .catch done
+        it "should destroy the user", (done) ->
+            User.destroy auth.user
+                .then (user) ->
+                    User.find(user)
+                        .then (dead_user) ->
+                            dead_user.should.be.empty
+                            done()
                         .catch done
                 .catch done
