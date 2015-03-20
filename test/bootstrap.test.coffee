@@ -1,7 +1,5 @@
 Sails = require "sails"
 sails = undefined
-chai = require "chai"
-chai.should()
 
 before (done) ->
     this.timeout 0

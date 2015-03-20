@@ -29,12 +29,14 @@ module.exports =
         # see
         # http://stackoverflow.com/a/27752329
         if newly_created_user.auth?
-            Auth.update {id: newly_created_user.auth}, {user: newly_created_user.id}
-                .then cb
+            Auth.update({id: newly_created_user.auth}, {user: newly_created_user.id})
+                .then (auth) ->
+                    cb()
         else
             cb()
 
     beforeDestroy: (values, cb) ->
+        # see comment to afterCreate
         User.findOne values
             .then (user) ->
                 Auth.destroy user.auth
