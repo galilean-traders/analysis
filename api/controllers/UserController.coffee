@@ -34,15 +34,26 @@ module.exports = require('waterlock').actions.user(
 
     update: (req, res) ->
         safe_params = _.pick req.body, whitelist
-        safe_params.auth =
-            email: safe_params.email
-            password: safe_params.password
+        safe_params.auth = {}
+        if safe_params.email
+            safe_params.auth.email = safe_params.email
+        if safe_params.password
+            safe_params.auth.password = safe_params.password
         delete safe_params.email
         delete safe_params.password
-        User.update {id: req.user.id}, safe_params
+        console.log "updating with", safe_params
+        User.update req.user.id, safe_params
             .then (user) ->
                 res.json user[0]
             .catch (error) ->
                 console.error error
-                res.error error
+                res.badRequest error
+
+    delete: (req, res) ->
+        User.destroy req.user.id
+            .then (user) ->
+                res.json user
+            .catch (error) ->
+                console.error error
+                res.badRequest error
 )

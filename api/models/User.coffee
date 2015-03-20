@@ -22,8 +22,7 @@ module.exports =
     )
 
     beforeCreate: waterlock.models.user.beforeCreate
-    beforeUpdate: waterlock.models.user.beforeUpdate
-    
+
     afterCreate: (newly_created_user, cb) ->
         # sails one-to-one associations are broken
         # see
