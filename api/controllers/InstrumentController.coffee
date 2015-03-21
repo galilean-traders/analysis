@@ -14,10 +14,7 @@ module.exports =
             url: "https://#{oandaServer req.user.account_type}/v1/instruments"
             qs:
                 accountId: req.user.account_id
-        unless req.user.account_type is "sandbox"
-            options.headers =
-                    authorization: "Bearer #{req.user.oanda_token}"
-        limiter.removeTokens 1, ->
+        oandaHeaders req.user.account_type, req.user.oanda_token, options
             request options, (error, response, body) ->
                 if error?
                     console.warn error
@@ -35,10 +32,7 @@ module.exports =
                 candleFormat: 'midpoint'
                 dailyAlignment: 0
                 alignmentTimezone: "Europe/Zurich"
-        unless req.user.account_type is "sandbox"
-            options.headers =
-                authorization: "Bearer #{req.user.oanda_token}"
-
+        oandaHeaders req.user.account_type, req.user.oanda_token, options
         etag = memoryCache.get "etag"
         cached = memoryCache.get "cached"
         if etag and cached
@@ -69,10 +63,7 @@ module.exports =
                 candleFormat: 'midpoint'
                 dailyAlignment: 0
                 alignmentTimezone: "Europe/Zurich"
-        unless req.user.account_type is "sandbox"
-            options.headers =
-                authorization: "Bearer #{req.user.oanda_token}"
-        limiter.removeTokens 1, ->
+        oandaHeaders req.user.account_type, req.user.oanda_token, options
             request options, (error, response, body) ->
                 if error?
                     console.warn error

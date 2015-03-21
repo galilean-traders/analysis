@@ -13,9 +13,7 @@ module.exports =
         # http://developer.oanda.com/rest-live/accounts/#getAccountsForUser
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/accounts"
-        unless req.user.account_type is "sandbox"
-            options.headers =
-                    authorization: "Bearer #{req.user.oanda_token}"
+        oandaHeaders req.user.account_type, req.user.oanda_token, options
         limiter.removeTokens 1, ->
             request options, (error, response, body) ->
                 if error?
@@ -28,9 +26,7 @@ module.exports =
             url: "https://#{oandaServer req.user.account_type}/v1/accounts"
             qs:
                 account_id: req.account_id
-        unless req.user.account_type is "sandbox"
-            options.headers =
-                    authorization: "Bearer #{req.user.oanda_token}"
+        oandaHeaders req.user.account_type, req.user.oanda_token, options
         limiter.removeTokens 1, ->
             request options, (error, response, body) ->
                 if error?

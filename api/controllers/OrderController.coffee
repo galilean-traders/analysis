@@ -10,9 +10,7 @@ module.exports = {
     create: (req, res) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders"
-        unless req.user.account_type is "sandbox"
-            options.headers =
-                authorization: "Bearer #{req.user.oanda_token}"
+        oandaHeaders req.user.account_type, req.user.oanda_token, options
         adr = req.body.adr
         pip = req.body.pip
         instrument = req.body.instrument
@@ -41,10 +39,7 @@ module.exports = {
     index: (req, res) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders"
-        unless req.user.account_type is "sandbox"
-            options.headers =
-                authorization: "Bearer #{req.user.oanda_token}"
-        request options, (error, response, body) ->
+        oandaHeaders req.user.account_type, req.user.oanda_token, options
             if error?
                 console.warn error
                 res.serverError error
@@ -64,10 +59,7 @@ module.exports = {
             "trailingStop"
         ]
         options.qs = _.pick req.body, (key) -> key in accepted_keys
-        unless req.user.account_type is "sandbox"
-            options.headers =
-                authorization: "Bearer #{req.user.oanda_token}"
-        request.patch options, (error, response, body) ->
+        oandaHeaders req.user.account_type, req.user.oanda_token, options
             if error?
                 console.warn error
                 res.serverError error
@@ -76,10 +68,7 @@ module.exports = {
     delete: (req, res) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders/#{req.body.order_id}"
-        unless req.user.account_type is "sandbox"
-            options.headers =
-                authorization: "Bearer #{req.user.oanda_token}"
-        request.delete options, (error, response, body) ->
+        oandaHeaders req.user.account_type, req.user.oanda_token, options
             if error?
                 console.warn error
                 res.serverError error
