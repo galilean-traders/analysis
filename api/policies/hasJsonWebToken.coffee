@@ -13,12 +13,12 @@ module.exports = (req, res, next) ->
     req.user = {}
     waterlock.validator.validateTokenRequest req, (err, user) ->
         if err?
-            console.error "authentication error", err
+            sails.log.error "authentication error", err
             return res.forbidden err
         Auth.findOne user.auth
             .exec (err, auth) ->
                 if err?
-                    console.error "authentication error", err
+                    sails.log.error "authentication error", err
                     return res.forbidden err
                 # valid request, save user to the request
                 req.user = user

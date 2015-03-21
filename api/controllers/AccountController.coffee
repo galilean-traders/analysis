@@ -17,7 +17,7 @@ module.exports =
         limiter.removeTokens 1, ->
             request options, (error, response, body) ->
                 if error?
-                    console.warn error
+                    sails.log.warn error
                     res.serverError error
                 res.json JSON.parse(body).accounts
 
@@ -30,6 +30,6 @@ module.exports =
         limiter.removeTokens 1, ->
             request options, (error, response, body) ->
                 if error?
-                    console.warn error
+                    sails.log.warn error
                     res.serverError error
                 res.json body

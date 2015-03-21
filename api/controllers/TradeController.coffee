@@ -13,7 +13,7 @@ module.exports = {
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         request options, (error, response, body) ->
             if error?
-                console.warn error
+                sails.log.error error
                 res.serverError error
             res.json JSON.parse(body).trades
 
@@ -25,7 +25,7 @@ module.exports = {
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         request.patch options, (error, response, body) ->
             if error?
-                console.warn error
+                sails.log.error error
                 res.serverError error
             res.json JSON.parse body
 
@@ -35,7 +35,7 @@ module.exports = {
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         request.delete options, (error, response, body) ->
             if error?
-                console.warn error
+                sails.log.error error
                 res.serverError error
             res.json JSON.parse body
 

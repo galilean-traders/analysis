@@ -20,7 +20,7 @@ module.exports = {
         trailingstop = 12
         request "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}", (error, response, body) ->
             if error?
-                console.warn error
+                sails.log.error error
                 res.serverError error
             balance = JSON.parse(body).balance
             options.qs =
@@ -32,7 +32,7 @@ module.exports = {
                 trailingStop: trailingstop
             request.post options, (error, response, body) ->
                 if error?
-                    console.warn error
+                    sails.log.error error
                     res.serverError error
                 res.send body
 
@@ -42,7 +42,7 @@ module.exports = {
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         request options, (error, response, body) ->
             if error?
-                console.warn error
+                sails.log.error error
                 res.serverError error
             res.json JSON.parse(body).orders
 
@@ -63,7 +63,7 @@ module.exports = {
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         request.patch options, (error, response, body) ->
             if error?
-                console.warn error
+                sails.log.error error
                 res.serverError error
             res.json JSON.parse body
 
@@ -73,7 +73,7 @@ module.exports = {
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         request.delete options, (error, response, body) ->
             if error?
-                console.warn error
+                sails.log.error error
                 res.serverError error
             res.json JSON.parse body
 
