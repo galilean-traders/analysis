@@ -1,12 +1,7 @@
-request = require "supertest"
-chai = require "chai"
-chai.config.includeStack = true
-should = chai.should()
-
 describe "UserController and AuthController", ->
 
     new_user = {
-        email: "pasticciacci@obrutto.divia.merulana"
+        email: "past@obrutto.divia.merulana"
         password: "ciarpame"
         oanda_token: "885ac2b8ad30d2292610ecb707431155-32bf7c56bb3db61696674160b00fa68c"
         account_type: "practice"

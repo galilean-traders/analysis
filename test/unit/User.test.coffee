@@ -1,7 +1,3 @@
-chai = require "chai"
-chai.config.includeStack = true
-should = chai.should()
-
 describe "User", ->
 
     new_user = {

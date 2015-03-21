@@ -1,37 +1,5 @@
-request = require "supertest"
-chai = require "chai"
-chai.config.includeStack = true
-should = chai.should()
-
 describe "SignalController", ->
 
-    new_user = {
-        email: "pasticciacci@obrutto.divia.merulana"
-        password: "ciarpame"
-        oanda_token: "885ac2b8ad30d2292610ecb707431155-32bf7c56bb3db61696674160b00fa68c"
-        account_type: "practice"
-        account_id: "7905739"
-    }
-
-    token = undefined
-
-    before (done) ->
-        # create the user before testing the controller
-        request sails.hooks.http.app
-            .post "/api/user/create"
-            .send new_user
-            .expect (res) ->
-                token = res.body.token
-                return
-            .expect 200, done
-
-    after (done) ->
-        # delete the user after the tests
-        request sails.hooks.http.app
-            .delete "/api/user/delete"
-            .set "access-token", token
-            .expect 200, done
-    
     describe "signals", ->
         rawdata = undefined
 
