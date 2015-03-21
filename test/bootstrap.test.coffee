@@ -3,7 +3,7 @@ sails = undefined
 
 before (done) ->
     this.timeout 0
-    Sails.lift {log: {level: "silent"}}, (error, server) ->
+    Sails.lift {log: {level: "error"}}, (error, server) ->
         sails = server
         if error?
             return done(error)
