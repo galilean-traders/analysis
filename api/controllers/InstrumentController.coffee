@@ -14,12 +14,15 @@ module.exports =
             url: "https://#{oandaServer req.user.account_type}/v1/instruments"
             qs:
                 accountId: req.user.account_id
-        oandaHeaders req.user.account_type, req.user.oanda_token, options
-        request options, (error, response, body) ->
-            if error?
-                sails.log.error error
-                res.serverError error
-            res.json JSON.parse(body).instruments
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                    authorization: "Bearer #{req.user.oanda_token}"
+        limiter.removeTokens 1, ->
+            request options, (error, response, body) ->
+                if error?
+                    console.warn error
+                    res.serverError error
+                res.json JSON.parse(body).instruments
 
 
     rawdata: (req, res) ->
@@ -32,7 +35,10 @@ module.exports =
                 candleFormat: 'midpoint'
                 dailyAlignment: 0
                 alignmentTimezone: "Europe/Zurich"
-        oandaHeaders req.user.account_type, req.user.oanda_token, options
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                authorization: "Bearer #{req.user.oanda_token}"
+
         etag = memoryCache.get "etag"
         cached = memoryCache.get "cached"
         if etag and cached
@@ -40,12 +46,12 @@ module.exports =
         limiter.removeTokens 1, ->
             request options, (error, response, body) ->
                 if error?
-                    sails.log.error "ERROR rawdata", error
+                    console.warn "ERROR rawdata", error
                     res.serverError error
-                sails.log.debug "status code", response.statusCode
+                console.log "status code", response.statusCode
                 json = JSON.parse(body).candles
                 if response.statusCode is 304
-                    sails.log.debug "sending cached"
+                    console.log "sending cached"
                     res.json cached.cached
                 else
                     memoryCache.set "etag", response.headers["etag"]
@@ -63,12 +69,15 @@ module.exports =
                 candleFormat: 'midpoint'
                 dailyAlignment: 0
                 alignmentTimezone: "Europe/Zurich"
-        oandaHeaders req.user.account_type, req.user.oanda_token, options
-        request options, (error, response, body) ->
-            if error?
-                sails.log.error error
-                res.serverError error
-            res.json JSON.parse(body).candles
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                authorization: "Bearer #{req.user.oanda_token}"
+        limiter.removeTokens 1, ->
+            request options, (error, response, body) ->
+                if error?
+                    console.warn error
+                    res.serverError error
+                res.json JSON.parse(body).candles
 
     ema5: (req, res) ->
         candles = req.body
@@ -79,7 +88,7 @@ module.exports =
                     d.closeMid
                 n: 5
         zmqUtils.send zmq_object, (data) ->
-            sails.log.debug "ema5 answer data: #{data}"
+            console.log "ema5 answer data: #{data}"
             res.json rUtils.filter_NA(data).map (d) ->
                 time: candles[d.index].time
                 value: d.value
@@ -93,7 +102,7 @@ module.exports =
                     d.closeMid
                 n: 10
         zmqUtils.send zmq_object, (data) ->
-            sails.log.debug "ema10 answer data: #{data}"
+            console.log "ema10 answer data: #{data}"
             res.json rUtils.filter_NA(data).map (d) ->
                 time: candles[d.index].time
                 value: d.value
@@ -107,7 +116,7 @@ module.exports =
                     d.closeMid
                 n: 14
         zmqUtils.send zmq_object, (data) ->
-            sails.log.debug "rsi answer data: #{data}"
+            console.log "rsi answer data: #{data}"
             res.json rUtils.filter_NA(data).map (d) ->
                 time: candles[d.index].time
                 value: d.value
@@ -151,7 +160,7 @@ module.exports =
                     d.highMid - d.lowMid
                 n: 14
         zmqUtils.send zmq_object, (data) ->
-            sails.log.debug "adr answer data: #{data}"
+            console.log "adr answer data: #{data}"
             res.json rUtils.filter_NA(data).map (d) ->
                 time: candles[d.index].time
                 value: d.value / req.body.pip

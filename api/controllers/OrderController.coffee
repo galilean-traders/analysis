@@ -9,47 +9,44 @@ module.exports = {
 
     create: (req, res) ->
         options =
-            url: "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}/orders"
-        oandaHeaders req.user.account_type, req.user.oanda_token, options
+            url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders"
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                authorization: "Bearer #{req.user.oanda_token}"
         adr = req.body.adr
         pip = req.body.pip
         instrument = req.body.instrument
         side = req.body.side
         stoploss = 0.1 * adr
-        takeprofit = 0.15 * adr
+        profittarget = 0.15 * adr
         trailingstop = 12
-        account_balance_request_options =
-            url:  "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}"
-        oandaHeaders req.user.account_type, req.user.oanda_token, account_balance_request_options
-        request account_balance_request_options, (error, response, body) ->
-            # get the balance to place an order sized at 2% of the current
-            # balance
+        request "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}", (error, response, body) ->
             if error?
-                sails.log.error error
+                console.warn error
                 res.serverError error
             balance = JSON.parse(body).balance
-            options.form =
+            options.qs =
                 instrument: instrument
                 units: 0.02 * balance
                 side: side
-                type: "market"
                 stopLoss: stoploss
                 takeProfit: takeprofit
                 trailingStop: trailingstop
             request.post options, (error, response, body) ->
                 if error?
-                    sails.log.error error
+                    console.warn error
                     res.serverError error
-                console.log body
-                res.json body
+                res.send body
 
     index: (req, res) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders"
-        oandaHeaders req.user.account_type, req.user.oanda_token, options
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                authorization: "Bearer #{req.user.oanda_token}"
         request options, (error, response, body) ->
             if error?
-                sails.log.error error
+                console.warn error
                 res.serverError error
             res.json JSON.parse(body).orders
 
@@ -66,21 +63,25 @@ module.exports = {
             "takeProfit"
             "trailingStop"
         ]
-        options.qs = _.pick req.body, accepted_keys
-        oandaHeaders req.user.account_type, req.user.oanda_token, options
+        options.qs = _.pick req.body, (key) -> key in accepted_keys
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                authorization: "Bearer #{req.user.oanda_token}"
         request.patch options, (error, response, body) ->
             if error?
-                sails.log.error error
+                console.warn error
                 res.serverError error
             res.json JSON.parse body
 
     delete: (req, res) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders/#{req.body.order_id}"
-        oandaHeaders req.user.account_type, req.user.oanda_token, options
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                authorization: "Bearer #{req.user.oanda_token}"
         request.delete options, (error, response, body) ->
             if error?
-                sails.log.error error
+                console.warn error
                 res.serverError error
             res.json JSON.parse body
 

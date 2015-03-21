@@ -10,10 +10,12 @@ module.exports = {
     index: (req, res) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/trades"
-        oandaHeaders req.user.account_type, req.user.oanda_token, options
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                authorization: "Bearer #{req.user.oanda_token}"
         request options, (error, response, body) ->
             if error?
-                sails.log.error error
+                console.warn error
                 res.serverError error
             res.json JSON.parse(body).trades
 
@@ -22,20 +24,24 @@ module.exports = {
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/trades/#{req.body.trade_id}"
         accepted_keys = ["stopLoss", "takeProfit", "trailingStop"]
         options.qs = _.pick req.body, (key) -> key in accepted_keys
-        oandaHeaders req.user.account_type, req.user.oanda_token, options
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                authorization: "Bearer #{req.user.oanda_token}"
         request.patch options, (error, response, body) ->
             if error?
-                sails.log.error error
+                console.warn error
                 res.serverError error
             res.json JSON.parse body
 
     delete: (req, res) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/trades/#{req.body.trade_id}"
-        oandaHeaders req.user.account_type, req.user.oanda_token, options
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                authorization: "Bearer #{req.user.oanda_token}"
         request.delete options, (error, response, body) ->
             if error?
-                sails.log.error error
+                console.warn error
                 res.serverError error
             res.json JSON.parse body
 

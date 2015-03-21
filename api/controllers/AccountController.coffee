@@ -13,11 +13,13 @@ module.exports =
         # http://developer.oanda.com/rest-live/accounts/#getAccountsForUser
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/accounts"
-        oandaHeaders req.user.account_type, req.user.oanda_token, options
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                    authorization: "Bearer #{req.user.oanda_token}"
         limiter.removeTokens 1, ->
             request options, (error, response, body) ->
                 if error?
-                    sails.log.warn error
+                    console.warn error
                     res.serverError error
                 res.json JSON.parse(body).accounts
 
@@ -26,10 +28,12 @@ module.exports =
             url: "https://#{oandaServer req.user.account_type}/v1/accounts"
             qs:
                 account_id: req.account_id
-        oandaHeaders req.user.account_type, req.user.oanda_token, options
+        unless req.user.account_type is "sandbox"
+            options.headers =
+                    authorization: "Bearer #{req.user.oanda_token}"
         limiter.removeTokens 1, ->
             request options, (error, response, body) ->
                 if error?
-                    sails.log.warn error
+                    console.warn error
                     res.serverError error
                 res.json body
