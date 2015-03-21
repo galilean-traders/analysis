@@ -11,23 +11,21 @@ module.exports =
         candles = req.body
         ema5_options =
             url: "http://127.0.0.1:1337/api/instrument/ema5"
-            body: candles
-            json: true
+            json: candles
             headers:
                 "access-token": req.headers["access-token"]
         ema10_options =
             url: "http://127.0.0.1:1337/api/instrument/ema10"
-            body: candles
-            json: true
+            json: candles
             headers:
                 "access-token": req.headers["access-token"]
         request.post ema5_options, (error, response, ema5) ->
             if error?
-                console.warn error
+                sails.log.error error
                 res.serverError error
             request.post ema10_options, (error, response, ema10) ->
                 if error?
-                    console.warn error
+                    sails.log.error error
                     res.serverError error
                 length = ema5.length
                 time = ema5[length - 1].time
@@ -48,20 +46,19 @@ module.exports =
                 response =
                     time: time
                     value: value
-                console.log "response is", response
+                sails.log.debug "response is", response
                 res.json response
 
     rsi: (req, res) ->
         candles = req.body
         options =
             url: "http://127.0.0.1:1337/api/instrument/rsi"
-            body: candles
-            json: true
+            json: candles
             headers:
                 "access-token": req.headers["access-token"]
         request.post options, (error, response, json) ->
             if error?
-                console.warn error
+                sails.log.error error
                 res.serverError error
             length = json.length
             time = json[length - 1].time
@@ -84,8 +81,7 @@ module.exports =
     adr: (req, res) ->
         options =
             url: "http://127.0.0.1:1337/api/instrument/adr"
-            body: req.body
-            json: true
+            json: req.body
             headers:
                 "access-token": req.headers["access-token"]
         request.post options, (error, response, json) ->
@@ -103,8 +99,7 @@ module.exports =
         candles = req.body
         options =
             url: "http://127.0.0.1:1337/api/instrument/stoch"
-            body: candles
-            json: true
+            json: candles
             headers:
                 "access-token": req.headers["access-token"]
         request.post options, (error, response, json) ->

@@ -18,13 +18,13 @@ module.exports.bootstrap = (cb) ->
         User.find()
             .exec (error, users) ->
                 if error?
-                    console.warn error
+                    console.error error
                     return
                 now = new Date()
-                console.log now, users
+                console.debug now, users
 
     schedule = later.parse.recur()
-        .every(5).second()
+        .every(5).minute()
 
     later.setInterval scheduled_function, schedule
 
