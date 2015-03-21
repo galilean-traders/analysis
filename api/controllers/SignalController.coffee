@@ -11,14 +11,12 @@ module.exports =
         candles = req.body
         ema5_options =
             url: "http://127.0.0.1:1337/api/instrument/ema5"
-            body: candles
-            json: true
+            json: candles
             headers:
                 "access-token": req.headers["access-token"]
         ema10_options =
             url: "http://127.0.0.1:1337/api/instrument/ema10"
-            body: candles
-            json: true
+            json: candles
             headers:
                 "access-token": req.headers["access-token"]
         request.post ema5_options, (error, response, ema5) ->
@@ -55,8 +53,7 @@ module.exports =
         candles = req.body
         options =
             url: "http://127.0.0.1:1337/api/instrument/rsi"
-            body: candles
-            json: true
+            json: candles
             headers:
                 "access-token": req.headers["access-token"]
         request.post options, (error, response, json) ->
@@ -84,8 +81,7 @@ module.exports =
     adr: (req, res) ->
         options =
             url: "http://127.0.0.1:1337/api/instrument/adr"
-            body: req.body
-            json: true
+            json: req.body
             headers:
                 "access-token": req.headers["access-token"]
         request.post options, (error, response, json) ->
@@ -103,8 +99,7 @@ module.exports =
         candles = req.body
         options =
             url: "http://127.0.0.1:1337/api/instrument/stoch"
-            body: candles
-            json: true
+            json: candles
             headers:
                 "access-token": req.headers["access-token"]
         request.post options, (error, response, json) ->

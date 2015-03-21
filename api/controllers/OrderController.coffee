@@ -9,24 +9,30 @@ module.exports = {
 
     create: (req, res) ->
         options =
-            url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders"
+            url: "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}/orders"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         adr = req.body.adr
         pip = req.body.pip
         instrument = req.body.instrument
         side = req.body.side
         stoploss = 0.1 * adr
-        profittarget = 0.15 * adr
+        takeprofit = 0.15 * adr
         trailingstop = 12
-        request "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}", (error, response, body) ->
+        account_balance_request_options =
+            url:  "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}"
+        oandaHeaders req.user.account_type, req.user.oanda_token, account_balance_request_options
+        request account_balance_request_options, (error, response, body) ->
+            # get the balance to place an order sized at 2% of the current
+            # balance
             if error?
                 sails.log.error error
                 res.serverError error
             balance = JSON.parse(body).balance
-            options.qs =
+            options.form =
                 instrument: instrument
                 units: 0.02 * balance
                 side: side
+                type: "market"
                 stopLoss: stoploss
                 takeProfit: takeprofit
                 trailingStop: trailingstop
@@ -34,7 +40,8 @@ module.exports = {
                 if error?
                     sails.log.error error
                     res.serverError error
-                res.send body
+                console.log body
+                res.json body
 
     index: (req, res) ->
         options =
@@ -59,7 +66,7 @@ module.exports = {
             "takeProfit"
             "trailingStop"
         ]
-        options.qs = _.pick req.body, (key) -> key in accepted_keys
+        options.qs = _.pick req.body, accepted_keys
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         request.patch options, (error, response, body) ->
             if error?
