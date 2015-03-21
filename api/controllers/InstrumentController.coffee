@@ -15,11 +15,11 @@ module.exports =
             qs:
                 accountId: req.user.account_id
         oandaHeaders req.user.account_type, req.user.oanda_token, options
-            request options, (error, response, body) ->
-                if error?
-                    console.warn error
-                    res.serverError error
-                res.json JSON.parse(body).instruments
+        request options, (error, response, body) ->
+            if error?
+                console.warn error
+                res.serverError error
+            res.json JSON.parse(body).instruments
 
 
     rawdata: (req, res) ->
@@ -64,11 +64,11 @@ module.exports =
                 dailyAlignment: 0
                 alignmentTimezone: "Europe/Zurich"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
-            request options, (error, response, body) ->
-                if error?
-                    console.warn error
-                    res.serverError error
-                res.json JSON.parse(body).candles
+        request options, (error, response, body) ->
+            if error?
+                console.warn error
+                res.serverError error
+            res.json JSON.parse(body).candles
 
     ema5: (req, res) ->
         candles = req.body

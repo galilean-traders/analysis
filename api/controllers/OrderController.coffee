@@ -40,6 +40,7 @@ module.exports = {
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
+        request options, (error, response, body) ->
             if error?
                 console.warn error
                 res.serverError error
@@ -60,6 +61,7 @@ module.exports = {
         ]
         options.qs = _.pick req.body, (key) -> key in accepted_keys
         oandaHeaders req.user.account_type, req.user.oanda_token, options
+        request.patch options, (error, response, body) ->
             if error?
                 console.warn error
                 res.serverError error
@@ -69,6 +71,7 @@ module.exports = {
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders/#{req.body.order_id}"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
+        request.delete options, (error, response, body) ->
             if error?
                 console.warn error
                 res.serverError error
