@@ -10,9 +10,7 @@ module.exports = {
     index: (req, res) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/trades"
-        unless req.user.account_type is "sandbox"
-            options.headers =
-                authorization: "Bearer #{req.user.oanda_token}"
+        oandaHeaders req.user.account_type, req.user.oanda_token, options
         request options, (error, response, body) ->
             if error?
                 console.warn error
@@ -24,9 +22,7 @@ module.exports = {
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/trades/#{req.body.trade_id}"
         accepted_keys = ["stopLoss", "takeProfit", "trailingStop"]
         options.qs = _.pick req.body, (key) -> key in accepted_keys
-        unless req.user.account_type is "sandbox"
-            options.headers =
-                authorization: "Bearer #{req.user.oanda_token}"
+        oandaHeaders req.user.account_type, req.user.oanda_token, options
         request.patch options, (error, response, body) ->
             if error?
                 console.warn error
@@ -36,9 +32,7 @@ module.exports = {
     delete: (req, res) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/trades/#{req.body.trade_id}"
-        unless req.user.account_type is "sandbox"
-            options.headers =
-                authorization: "Bearer #{req.user.oanda_token}"
+        oandaHeaders req.user.account_type, req.user.oanda_token, options
         request.delete options, (error, response, body) ->
             if error?
                 console.warn error
