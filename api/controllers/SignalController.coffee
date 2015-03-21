@@ -23,11 +23,11 @@ module.exports =
                 "access-token": req.headers["access-token"]
         request.post ema5_options, (error, response, ema5) ->
             if error?
-                console.warn error
+                sails.log.error error
                 res.serverError error
             request.post ema10_options, (error, response, ema10) ->
                 if error?
-                    console.warn error
+                    sails.log.error error
                     res.serverError error
                 length = ema5.length
                 time = ema5[length - 1].time
@@ -48,7 +48,7 @@ module.exports =
                 response =
                     time: time
                     value: value
-                console.log "response is", response
+                sails.log.debug "response is", response
                 res.json response
 
     rsi: (req, res) ->
@@ -61,7 +61,7 @@ module.exports =
                 "access-token": req.headers["access-token"]
         request.post options, (error, response, json) ->
             if error?
-                console.warn error
+                sails.log.error error
                 res.serverError error
             length = json.length
             time = json[length - 1].time

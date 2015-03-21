@@ -27,7 +27,7 @@ module.exports = require('waterlock').actions.user(
             .then (user) ->
                 waterlock.cycle.loginSuccess req, res, user
             .catch (error) ->
-                console.log error
+                sails.log.error error
                 res.badRequest error
 
     findOne: (req, res) -> res.json req.user
@@ -39,7 +39,7 @@ module.exports = require('waterlock').actions.user(
             .then (user) ->
                 res.json user[0]
             .catch (error) ->
-                console.error error
+                sails.log.error error
                 res.badRequest error
 
     delete: (req, res) ->
@@ -47,6 +47,6 @@ module.exports = require('waterlock').actions.user(
             .then (user) ->
                 res.json user
             .catch (error) ->
-                console.error error
+                sails.log.error error
                 res.badRequest error
 )
