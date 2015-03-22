@@ -40,7 +40,6 @@ module.exports = {
                 if error?
                     sails.log.error error
                     res.serverError error
-                console.log body
                 res.json body
 
     index: (req, res) ->

@@ -14,6 +14,10 @@ describe "OrderController and TradeController", ->
                 }
                 .expect 'Content-Type', /json/
                 .expect (res) ->
+                    if "code" in res.body and res.body.code is 24
+                        # instrument trading is halted, cannot go on with
+                        # the test
+                        return "instrument trading halted on oanda, try during open market hours: http://fxtrade.oanda.com/help/policies/weekend-exposure-limits"
                     res.body.should.have.property "id"
                     res.body.should.have.property "instrument"
                         .that.equals "EUR_USD"

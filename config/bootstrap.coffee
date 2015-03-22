@@ -21,7 +21,7 @@ module.exports.bootstrap = (cb) ->
                     console.error error
                     return
                 now = new Date()
-                console.debug now, users
+                sails.log.debug now, users
 
     schedule = later.parse.recur()
         .every(5).minute()
