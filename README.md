@@ -8,6 +8,13 @@ a [Sails](http://sailsjs.org) application
 sudo apt-get install nodejs
 sudo npm install -g sails
 sudo npm install -g coffee-script
+npm install
+```
+
+# Test
+
+```bash
+grunt test
 ```
 
 # Run
@@ -23,6 +30,7 @@ forever logs app.js -f
 ```
 
 # Quit
+
 ```bash
 forever stop app.js
 ```

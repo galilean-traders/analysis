@@ -1,4 +1,0 @@
---compilers coffee:coffee-script/register
---reporter spec
---require test/requires.coffee
-test/bootstrap.test.coffee
