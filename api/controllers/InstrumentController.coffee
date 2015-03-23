@@ -14,7 +14,7 @@ module.exports =
             url: "https://#{oandaServer req.user.account_type}/v1/instruments"
             qs:
                 accountId: req.user.account_id
-                fields: "instrument,displayName,pip,maxTradeUnits,halted"
+                fields: "instrument,displayName,pip,precision,maxTradeUnits,halted"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         request options, (error, response, body) ->
             if error?
