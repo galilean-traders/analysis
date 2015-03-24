@@ -8,6 +8,7 @@ a [Sails](http://sailsjs.org) application
 sudo apt-get install nodejs
 sudo npm install -g sails
 sudo npm install -g coffee-script
+sudo npm install -g mocha # for the tests
 npm install
 ```
 
