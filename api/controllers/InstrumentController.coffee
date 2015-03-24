@@ -17,7 +17,7 @@ module.exports =
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         jsonParsingRequest options, (error, response, body) ->
             oandaErrors res, error, response, body
-            res.json body.instruments.filter (d) -> d.complete is true
+            res.json body.instruments
 
 
     rawdata: (req, res) ->
@@ -39,13 +39,13 @@ module.exports =
             jsonParsingRequest options, (error, response, body) ->
                 oandaErrors res, error, response, body
                 sails.log.debug "status code", response.statusCode
-                json = body.candles
                 if response.statusCode is 304
                     sails.log.debug "sending cached"
                     res.json cached.cached
                 else
                     memoryCache.set "etag", response.headers["etag"]
                     memoryCache.set "cached", json
+                    json = body.candles.filter (d) -> d.complete is true
                     res.json json
 
     historical: (req, res) ->
