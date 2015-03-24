@@ -11,7 +11,7 @@ describe "InstrumentController", ->
                     return
                 .expect 200, done
 
-        it "should make multiple requests without exceeding the oanda limit", (done) ->
+        it "should make 4 requests without exceeding the oanda limit", (done) ->
             this.timeout 6000
             request sails.hooks.http.app
                 .get "/api/instrument/index"

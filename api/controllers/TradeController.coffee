@@ -9,7 +9,7 @@ module.exports = {
 
     index: (req, res) ->
         options =
-            url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/trades"
+            url: "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}/trades"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         request options, (error, response, body) ->
             if error?
@@ -19,7 +19,7 @@ module.exports = {
 
     update: (req, res) ->
         options =
-            url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/trades/#{req.body.trade_id}"
+            url: "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}/trades/#{req.body.trade_id}"
         accepted_keys = ["stopLoss", "takeProfit", "trailingStop"]
         options.qs = _.pick req.body, (key) -> key in accepted_keys
         oandaHeaders req.user.account_type, req.user.oanda_token, options
@@ -31,9 +31,9 @@ module.exports = {
 
     delete: (req, res) ->
         options =
-            url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/trades/#{req.body.trade_id}"
+            url: "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}/trades/#{req.body.trade_id}"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
-        request.delete options, (error, response, body) ->
+        request.del options, (error, response, body) ->
             if error?
                 sails.log.error error
                 res.serverError error

@@ -1,4 +1,4 @@
- # TradeController
+ # OrderController
  #
  # @description :: Server-side logic for managing orders
  # @help        :: See http://links.sailsjs.org/docs/controllers
@@ -78,7 +78,7 @@ module.exports = {
 
     index: (req, res) ->
         options =
-            url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders"
+            url: "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}/orders"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         request options, (error, response, body) ->
             if error?
@@ -88,7 +88,7 @@ module.exports = {
 
     update: (req, res) ->
         options =
-            url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders/#{req.body.order_id}"
+            url: "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}/orders/#{req.body.order_id}"
         accepted_keys = [
             "units"
             "price"
@@ -111,7 +111,7 @@ module.exports = {
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders/#{req.body.order_id}"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
-        request.delete options, (error, response, body) ->
+        request.del options, (error, response, body) ->
             if error?
                 sails.log.error error
                 res.serverError error
