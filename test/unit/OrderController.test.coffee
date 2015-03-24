@@ -19,26 +19,18 @@ describe "OrderController and TradeController", ->
                 }
                 .expect 'Content-Type', /json/
                 .expect (res) ->
-                    parsed = JSON.parse res.body
-                    if "code" in parsed 
-                        if parsed.code is 24
-                            # instrument trading is halted, cannot go on with
-                            # the test
-                            return "instrument trading halted on oanda, try during open market hours: http://fxtrade.oanda.com/help/policies/weekend-exposure-limits"
-                        else
-                            return "#{parsed.code}, #{parsed.message}"
-                    parsed.should.have.property "instrument"
+                    res.body.should.have.property "instrument"
                         .that.equals "EUR_USD"
-                    parsed.should.have.property "time"
-                    parsed.should.have.property "price"
-                    parsed.should.have.property "tradeOpened"
-                    parsed.tradeOpened.should.have.property "side"
+                    res.body.should.have.property "time"
+                    res.body.should.have.property "price"
+                    res.body.should.have.property "tradeOpened"
+                    res.body.tradeOpened.should.have.property "side"
                         .that.equals "sell"
-                    parsed.tradeOpened.should.have.property "id"
-                    parsed.tradeOpened.should.have.property "takeProfit"
-                    parsed.tradeOpened.should.have.property "stopLoss"
-                    parsed.tradeOpened.should.have.property "trailingStop"
-                    sell_trade_id = parsed.tradeOpened.id
+                    res.body.tradeOpened.should.have.property "id"
+                    res.body.tradeOpened.should.have.property "takeProfit"
+                    res.body.tradeOpened.should.have.property "stopLoss"
+                    res.body.tradeOpened.should.have.property "trailingStop"
+                    sell_trade_id = res.body.tradeOpened.id
                     return
                 .expect 200, done
 
@@ -56,26 +48,18 @@ describe "OrderController and TradeController", ->
                 }
                 .expect 'Content-Type', /json/
                 .expect (res) ->
-                    parsed = JSON.parse res.body
-                    if "code" in parsed 
-                        if parsed.code is 24
-                            # instrument trading is halted, cannot go on with
-                            # the test
-                            return "instrument trading halted on oanda, try during open market hours: http://fxtrade.oanda.com/help/policies/weekend-exposure-limits"
-                        else
-                            return "#{parsed.code}, #{parsed.message}"
-                    parsed.should.have.property "instrument"
+                    res.body.should.have.property "instrument"
                         .that.equals "EUR_CHF"
-                    parsed.should.have.property "time"
-                    parsed.should.have.property "price"
-                    parsed.should.have.property "tradeOpened"
-                    parsed.tradeOpened.should.have.property "side"
+                    res.body.should.have.property "time"
+                    res.body.should.have.property "price"
+                    res.body.should.have.property "tradeOpened"
+                    res.body.tradeOpened.should.have.property "side"
                         .that.equals "buy"
-                    parsed.tradeOpened.should.have.property "id"
-                    parsed.tradeOpened.should.have.property "takeProfit"
-                    parsed.tradeOpened.should.have.property "stopLoss"
-                    parsed.tradeOpened.should.have.property "trailingStop"
-                    buy_trade_id = parsed.tradeOpened.id
+                    res.body.tradeOpened.should.have.property "id"
+                    res.body.tradeOpened.should.have.property "takeProfit"
+                    res.body.tradeOpened.should.have.property "stopLoss"
+                    res.body.tradeOpened.should.have.property "trailingStop"
+                    buy_trade_id = res.body.tradeOpened.id
                     return
                 .expect 200, done
 

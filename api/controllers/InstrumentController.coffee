@@ -3,7 +3,6 @@
  # @description :: Server-side logic for managing instruments
  # @help        :: See http://links.sailsjs.org/docs/controllers
 
-request = require "request"
 padding = 18
 RateLimiter = require("limiter").RateLimiter
 limiter = new RateLimiter(2, 'second')
@@ -16,11 +15,9 @@ module.exports =
                 accountId: req.user.account_id
                 fields: "instrument,displayName,pip,precision,maxTradeUnits,halted"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
-        request options, (error, response, body) ->
-            if error?
-                sails.log.error error
-                res.serverError error
-            res.json JSON.parse(body).instruments
+        jsonParsingRequest options, (error, response, body) ->
+            oandaErrors res, error, response, body
+            res.json body.instruments
 
 
     rawdata: (req, res) ->
@@ -39,12 +36,10 @@ module.exports =
         if etag and cached
             options.headers["If-None-Match"] = etag.etag
         limiter.removeTokens 1, ->
-            request options, (error, response, body) ->
-                if error?
-                    sails.log.error "ERROR rawdata", error
-                    res.serverError error
+            jsonParsingRequest options, (error, response, body) ->
+                oandaErrors res, error, response, body
                 sails.log.debug "status code", response.statusCode
-                json = JSON.parse(body).candles
+                json = body.candles
                 if response.statusCode is 304
                     sails.log.debug "sending cached"
                     res.json cached.cached
@@ -65,11 +60,9 @@ module.exports =
                 dailyAlignment: 0
                 alignmentTimezone: "Europe/Zurich"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
-        request options, (error, response, body) ->
-            if error?
-                sails.log.error error
-                res.serverError error
-            res.json JSON.parse(body).candles
+        jsonParsingRequest options, (error, response, body) ->
+            oandaErrors res, error, response, body
+            res.json body.candles
 
     ema5: (req, res) ->
         candles = req.body

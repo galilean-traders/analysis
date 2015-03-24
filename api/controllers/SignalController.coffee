@@ -3,8 +3,6 @@
  # @description :: Server-side logic for managing instruments
  # @help        :: See http://links.sailsjs.org/docs/controllers
 
-request = require "request"
-
 module.exports =
 
     ema5ema10: (req, res) ->
@@ -19,14 +17,10 @@ module.exports =
             json: candles
             headers:
                 "access-token": req.headers["access-token"]
-        request.post ema5_options, (error, response, ema5) ->
-            if error?
-                sails.log.error error
-                res.serverError error
-            request.post ema10_options, (error, response, ema10) ->
-                if error?
-                    sails.log.error error
-                    res.serverError error
+        jsonParsingRequest.post ema5_options, (error, response, ema5) ->
+            oandaErrors res, error, response, ema5
+            jsonParsingRequest.post ema10_options, (error, response, ema10) ->
+                oandaErrors res, error, response, ema10
                 length = ema5.length
                 time = ema5[length - 1].time
                 ema5 = ema5.map (d) -> d.value
@@ -56,10 +50,8 @@ module.exports =
             json: candles
             headers:
                 "access-token": req.headers["access-token"]
-        request.post options, (error, response, json) ->
-            if error?
-                sails.log.error error
-                res.serverError error
+        jsonParsingRequest.post options, (error, response, json) ->
+            oandaErrors res, error, response, json
             length = json.length
             time = json[length - 1].time
             json = json.map (d) -> d.value
@@ -84,7 +76,7 @@ module.exports =
             json: req.body
             headers:
                 "access-token": req.headers["access-token"]
-        request.post options, (error, response, json) ->
+        jsonParsingRequest.post options, (error, response, json) ->
             length = json.length
             time = json[length - 1].time
             json = json.map (d) -> d.value
@@ -102,7 +94,7 @@ module.exports =
             json: candles
             headers:
                 "access-token": req.headers["access-token"]
-        request.post options, (error, response, json) ->
+        jsonParsingRequest.post options, (error, response, json) ->
             length = json.length
             time = json[length - 1].time
             json = json.map (d) -> d.value
