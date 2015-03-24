@@ -17,7 +17,7 @@ module.exports =
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         jsonParsingRequest options, (error, response, body) ->
             oandaErrors res, error, response, body
-            res.json body.instruments
+            res.json body.instruments.filter (d) -> d.complete is true
 
 
     rawdata: (req, res) ->
