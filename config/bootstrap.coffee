@@ -8,6 +8,7 @@
 # http://sailsjs.org/#/documentation/reference/sails.config/sails.config.bootstrap.html
 
 later = require "later"
+request = require "request"
 
 module.exports.bootstrap = (cb) ->
 
@@ -15,16 +16,40 @@ module.exports.bootstrap = (cb) ->
     # with the bootstrap!  (otherwise your server will never lift, since it's waiting on the bootstrap)
 
     scheduled_function = ->
-        console.log "scheduled_function?"
         User.find()
             .then (users) ->
-                console.log users
                 users.map (user) ->
+                    console.log user
                     Jwt.findOne({owner: user.id, revoked: false})
                         .then (token) ->
-                            console.log "token", token
+                            token = token.token
                             now = new Date()
-                            sails.log.debug now, "found user with token", token
+                            names = user.favorites.join()
+                            request {
+                                url: "http://localhost:1337/api/instrument/index"
+                                qs:
+                                    instruments: user.favorites
+                                json: true
+                                headers:
+                                    "access-token": token
+                            }, (error, response, instruments) ->
+                                instruments.filter (d) -> not d.halted
+                                    .map (instrument) ->
+                                        pip = parseFloat instrument.pip
+                                        precision = instrument.precision.length - 2
+                                        name = instrument.instrument
+                                        request {
+                                            url: "http://localhost:1337/api/instrument/rawdata"
+                                            qs:
+                                                name: name
+                                                count: 25
+                                                granularity: "M5"
+                                            json: true
+                                            headers:
+                                                "access-token": token
+                                        }
+
+    scheduled_function()
 
     schedule = later.parse.recur()
         .every(5).minute()

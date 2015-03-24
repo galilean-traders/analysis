@@ -74,6 +74,14 @@ describe "UserController and AuthController", ->
                 .expect 'Content-Type', /json/
                 .expect 200, done
 
+        it "should update favorites", (done) ->
+            request sails.hooks.http.app
+                .put "/api/user/update"
+                .send {favorites: ["EUR_USD", "EUR_CHF"]}
+                .set "access-token", token
+                .expect 'Content-Type', /json/
+                .expect 200, done
+
         it "should update password", (done) ->
             request sails.hooks.http.app
                 .put "/api/user/update"

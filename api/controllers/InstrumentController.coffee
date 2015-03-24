@@ -8,17 +8,18 @@ RateLimiter = require("limiter").RateLimiter
 limiter = new RateLimiter(2, 'second')
 
 module.exports =
+
     index: (req, res) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/instruments"
             qs:
                 accountId: req.user.account_id
                 fields: "instrument,displayName,pip,precision,maxTradeUnits,halted"
+        options.qs.instruments = req.param("instruments").join() if req.param("instruments")?
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         jsonParsingRequest options, (error, response, body) ->
             oandaErrors res, error, response, body
             res.json body.instruments
-
 
     rawdata: (req, res) ->
         options =

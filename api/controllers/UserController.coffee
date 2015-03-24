@@ -12,6 +12,7 @@ whitelist = [
     "account_type"
     "account_id"
     "oanda_token"
+    "favorites"
 ]
 
 module.exports = require('waterlock').actions.user(
