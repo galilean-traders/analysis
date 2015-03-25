@@ -59,7 +59,6 @@ module.exports = {
                 stopLoss: stoploss.toFixed precision
                 takeProfit: takeprofit.toFixed precision
                 trailingStop: trailingstop
-
             oandaRequest options
 
         get_current_price()
@@ -79,6 +78,7 @@ module.exports = {
     update: (req, res, next) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}/orders/#{req.body.order_id}"
+            method: "patch"
         accepted_keys = [
             "units"
             "price"
@@ -91,15 +91,16 @@ module.exports = {
         ]
         options.qs = _.pick req.body, accepted_keys
         oandaHeaders req.user.account_type, req.user.oanda_token, options
-        oandaRequest.patch options
+        oandaRequest options
             .then (body) -> res.json body
             .catch (error) -> next error.error
 
     delete: (req, res, next) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/#{req.user.account_id}/orders/#{req.body.order_id}"
+            method: "delete"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
-        oandaRequest.del options
+        oandaRequest options
             .then (body) -> res.json body
             .catch (error) -> next error.error
 
