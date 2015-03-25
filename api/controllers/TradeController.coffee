@@ -5,30 +5,32 @@
 
 module.exports = {
 
-    index: (req, res) ->
+    index: (req, res, next) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}/trades"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
-        jsonParsingRequest options, (error, response, body) ->
-            oandaErrors res, error, response, body
-            res.json body.trades
+        oandaRequest options
+            .then (body) -> res.json body.trades
+            .catch (error) -> next error.error
 
-    update: (req, res) ->
+    update: (req, res, next) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}/trades/#{req.body.trade_id}"
+            method: "patch"
         accepted_keys = ["stopLoss", "takeProfit", "trailingStop"]
         options.qs = _.pick req.body, (key) -> key in accepted_keys
         oandaHeaders req.user.account_type, req.user.oanda_token, options
-        jsonParsingRequest.patch options, (error, response, body) ->
-            oandaErrors res, error, response, body
-            res.json body
+        oandaRequest options
+            .then (body) -> res.json body
+            .catch (error) -> next error.error
 
-    delete: (req, res) ->
+    delete: (req, res, next) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}/trades/#{req.body.trade_id}"
+            method: "delete"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
-        jsonParsingRequest.del options, (error, response, body) ->
-            oandaErrors res, error, response, body
-            res.json body
+        oandaRequest options
+            .then (body) -> res.json body
+            .catch (error) -> next error.error
 
 }

@@ -2,6 +2,7 @@ describe "SignalController", ->
 
     describe "signals", ->
         rawdata = undefined
+        invalid_data = ["crap", 0.24]
 
         this.timeout 6000
         before (done) ->
@@ -13,6 +14,14 @@ describe "SignalController", ->
                     rawdata = res.body
                     return
                 .expect 200, done
+
+        #it "should get an error with invalid data", (done) ->
+            #request sails.hooks.http.app
+                #.post "/api/signal/ema5ema10"
+                #.set "access-token", token
+                #.send invalid_data
+                #.expect 'Content-Type', /json/
+                #.expect 500, done
 
         it "should get ema5ema10", (done) ->
             request sails.hooks.http.app

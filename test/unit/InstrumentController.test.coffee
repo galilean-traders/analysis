@@ -1,6 +1,14 @@
 describe "InstrumentController", ->
 
     describe "#index()", ->
+
+        it "should get an error from oanda (nonexisting instrument)", (done) ->
+            request sails.hooks.http.app
+                .get "/api/instrument/index?instruments[]=IDONTEXIST"
+                .set "access-token", token
+                .expect 'Content-Type', /json/
+                .expect 500, done
+
         it "should get a list of instruments", (done) ->
             request sails.hooks.http.app
                 .get "/api/instrument/index"
@@ -41,7 +49,7 @@ describe "InstrumentController", ->
                 .expect 'Content-Type', /json/
                 .expect (res) ->
                     res.body.should.be.an "array"
-                        .with.length 15
+                        .with.length 14
                     res.body[0].should.have.property "time"
                     res.body[0].should.have.property "openMid"
                     res.body[0].should.have.property "highMid"

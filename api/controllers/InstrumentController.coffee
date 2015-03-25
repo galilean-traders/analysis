@@ -7,23 +7,28 @@ padding = 18
 RateLimiter = require("limiter").RateLimiter
 limiter = new RateLimiter(2, 'second')
 
+request = require "request-promise"
+    .defaults json: true
+
 module.exports =
 
-    index: (req, res) ->
+    index: (req, res, next) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/instruments"
             qs:
                 accountId: req.user.account_id
                 fields: "instrument,displayName,pip,precision,maxTradeUnits,halted"
+            json: true
         options.qs.instruments = req.param("instruments").join() if req.param("instruments")?
         oandaHeaders req.user.account_type, req.user.oanda_token, options
-        jsonParsingRequest options, (error, response, body) ->
-            oandaErrors res, error, response, body
-            res.json body.instruments
+        oandaRequest options
+            .then (body) -> res.json body.instruments
+            .catch (error) -> next error.error
 
-    rawdata: (req, res) ->
+    rawdata: (req, res, next) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/candles"
+            resolveWithFullResponse: true
             qs:
                 instrument: req.param 'name'
                 count: req.param 'count'
@@ -34,22 +39,20 @@ module.exports =
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         etag = memoryCache.get "etag"
         cached = memoryCache.get "cached"
-        if etag and cached
-            options.headers["If-None-Match"] = etag.etag
+        options.headers["If-None-Match"] = etag.etag if etag and cached
         limiter.removeTokens 1, ->
-            jsonParsingRequest options, (error, response, body) ->
-                oandaErrors res, error, response, body
-                sails.log.debug "status code", response.statusCode
-                if response.statusCode is 304
-                    sails.log.debug "sending cached"
-                    res.json cached.cached
-                else
-                    memoryCache.set "etag", response.headers["etag"]
-                    memoryCache.set "cached", json
-                    json = body.candles.filter (d) -> d.complete is true
-                    res.json json
+            oandaRequest options
+                .then (response) ->
+                    if response.statusCode is 304
+                        res.json cached.cached
+                    else
+                        json = response.body.candles.filter (d) -> d.complete is true
+                        memoryCache.set "etag", response.headers["etag"]
+                        memoryCache.set "cached", json
+                        res.json json
+                .catch (error) -> next error.error
 
-    historical: (req, res) ->
+    historical: (req, res, next) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/candles"
             qs:
@@ -61,9 +64,9 @@ module.exports =
                 dailyAlignment: 0
                 alignmentTimezone: "Europe/Zurich"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
-        jsonParsingRequest options, (error, response, body) ->
-            oandaErrors res, error, response, body
-            res.json body.candles
+        oandaRequest options
+            .then (body) -> body.candles
+            .catch (error) -> next error.error
 
     ema5: (req, res) ->
         candles = req.body
