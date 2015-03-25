@@ -15,41 +15,76 @@ module.exports.bootstrap = (cb) ->
     # It's very important to trigger this callback method when you are finished
     # with the bootstrap!  (otherwise your server will never lift, since it's waiting on the bootstrap)
 
-    get_users = User.find()
+    get_m5_stats = (token, rawdata) ->
+        ["ema5ema10", "rsi", "stoch"].map (stat) ->
+            options =
+                url: "http://localhost:1337/api/signal/#{stat}"
+                method: "post"
+                json: rawdata
+                headers:
+                    "access-token": token
+            request options
 
-    #scheduled_function = ->
-        #User.find()
-            #.then (users) ->
-                #users.map (user) ->
-                    #console.log user
-                    #Jwt.findOne({owner: user.id, revoked: false})
-                        #.then (token) ->
-                            #token = token.token
-                            #now = new Date()
-                            #names = user.favorites.join()
-                            #request {
-                                #url: "http://localhost:1337/api/instrument/index"
-                                #qs:
-                                    #instruments: user.favorites
-                                #json: true
-                                #headers:
-                                    #"access-token": token
-                            #}, (error, response, instruments) ->
-                                #instruments.filter (d) -> not d.halted
-                                    #.map (instrument) ->
-                                        #pip = parseFloat instrument.pip
-                                        #precision = instrument.precision.length - 2
-                                        #name = instrument.instrument
-                                        #request {
-                                            #url: "http://localhost:1337/api/instrument/rawdata"
-                                            #qs:
-                                                #name: name
-                                                #count: 25
-                                                #granularity: "M5"
-                                            #json: true
-                                            #headers:
-                                                #"access-token": token
-                                        #}
+    get_open_instruments = (token, user) ->
+        options =
+            url: "http://localhost:1337/api/instrument/index"
+            qs:
+                instruments: user.favorites
+            json: true
+            headers:
+                "access-token": token
+        request options
+            .then (instruments) ->
+                return instruments.filter (instrument) ->
+                    not instrument.halted
+
+    get_adr = (token, instrument) ->
+        options =
+            url: "http://localhost:1337/api/instrument/rawdata"
+            qs:
+                name: instrument.instrument
+                count: 25
+                granularity: "D"
+            json: true
+            headers:
+                "access-token": token
+        request(options).then (rawdata) ->
+            instrument_options =
+                url: "http://localhost:1337/api/instrument/adr"
+                method: "post"
+                json:
+                    candles: rawdata
+                    pip: instrument.pip
+                headers:
+                    "access-token": token
+            signal_options =
+                url: "http://localhost:1337/api/signal/adr"
+                method: "post"
+                json:
+                    candles: rawdata
+                    pip: instrument.pip
+                headers:
+                    "access-token": token
+            return [request(instrument_options).get(24), request(signal_options)]
+
+    get_rawdata = (token, instrument) ->
+        options =
+            url: "http://localhost:1337/api/instrument/rawdata"
+            qs:
+                name: instrument.instrument
+                count: 25
+                granularity: "M5"
+            json: true
+            headers:
+                "access-token": token
+        request option
+
+    get_token = (user) ->
+        Jwt.findOne({owner: user.id, revoked: false})
+            .then (token) -> token.token
+
+    get_users = User.find().then (users) ->
+        users.map get_token
 
     #scheduled_function()
 

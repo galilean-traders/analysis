@@ -89,14 +89,10 @@ module.exports =
                 "access-token": req.headers["access-token"]
         oandaRequest options
             .then (json) ->
-                length = json.length
-                time = json[length - 1].time
-                json = json.map (d) -> d.value
                 [..., first] = json
-                response = {
-                    time: time
-                    value: first > 100
-                }
+                response =
+                    time: first.time
+                    value: first.value > 100
                 res.json response
             .catch (error) -> next error.error
 

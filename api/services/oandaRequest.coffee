@@ -15,6 +15,12 @@ module.exports = (options) ->
             throw new OandaError(body) if "code" in body
             return body
     else
-        request(options).then (response) ->
-            throw new OandaError response.body if "code" in response.body
-            return response
+        request(options)
+            .then (response) ->
+                console.log response.statusCode
+                throw new OandaError response.body if "code" in response.body
+                return response
+            .catch (reason) ->
+                console.log reason
+                return reason
+            
