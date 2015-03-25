@@ -3,6 +3,8 @@
  # @description :: Server-side logic for managing instruments
  # @help        :: See http://links.sailsjs.org/docs/controllers
 
+Promise = require "bluebird"
+
 module.exports =
 
     ema5ema10: (req, res, next) ->
@@ -22,13 +24,9 @@ module.exports =
 
         get_ema5 = oandaRequest ema5_options
 
-        get_ema10 = (ema5) ->
-            oandaRequest ema10_options
-                .then (ema10) ->
-                    return [ema5, ema10]
+        get_ema10 = oandaRequest ema10_options
 
-        compare_ema5ema10 = (stats) ->
-            [ema5, ema10] = stats
+        compare_ema5ema10 = Promise.method (ema5, ema10) ->
             length = ema5.length
             time = ema5[length - 1].time
             ema5 = ema5.map (d) -> d.value
@@ -48,12 +46,11 @@ module.exports =
             response =
                 time: time
                 value: value
-            res.json response
+            return response
 
-        get_ema5
-            .then get_ema10
-            .then compare_ema5ema10
-            .catch (error) -> next error.error
+        Promise.join get_ema5, get_ema10, compare_ema5ema10
+            .then (response) -> res.json response
+            .catch (error) -> next error
 
     rsi: (req, res, next) ->
         options =

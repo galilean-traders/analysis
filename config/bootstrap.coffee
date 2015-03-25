@@ -15,6 +15,8 @@ module.exports.bootstrap = (cb) ->
     # It's very important to trigger this callback method when you are finished
     # with the bootstrap!  (otherwise your server will never lift, since it's waiting on the bootstrap)
 
+    get_users = User.find()
+
     #scheduled_function = ->
         #User.find()
             #.then (users) ->

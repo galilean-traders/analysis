@@ -6,6 +6,7 @@
   "keywords": [],
   "dependencies": {
     "bcrypt": "^0.8.0",
+    "bluebird": "^2.9.14",
     "coffee-script": "^1.8.0",
     "d3": "^3.4.13",
     "ejs": "~0.8.4",
