@@ -2,12 +2,12 @@ request = require "request-promise"
     .defaults json: true
 
 class OandaError extends Error
-    constructor: (body, fileName, lineNumber) ->
+    constructor: (@message) ->
         # build an Error object with the data from the oanda api:
         # http://developer.oanda.com/rest-live/troubleshooting-errors/
-        message = "#{body.code}: #{body.message}"
-        message += " #{body.moreInfo}" if body.moreInfo?
-        super message, fileName, lineNumber
+        # https://github.com/petkaantonov/bluebird/blob/master/API.md#catchfunction-errorclassfunction-predicate-function-handler---promise
+        @name = "OandaError"
+        Error.captureStackTrace this, OandaError
 
 module.exports = (options) ->
     if not options.resolveWithFullResponse?
