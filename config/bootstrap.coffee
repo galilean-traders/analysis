@@ -38,16 +38,17 @@ module.exports.bootstrap = (cb) ->
             sails.log.debug response.body
 
     get_trade_status = (signals) ->
-        all_equal = signals.reduce (a, b) -> if a == b then a else false
-        if all_equal and signals[0]
-            return signals[0]
+        all_equal = signals[1..]
+            .reduce (a, b) -> if a == b then a else false
+        if all_equal and signals[1] and signals[0]
+            return signals[1]
         else
             return false
     
     get_m5_stats = (token_and_rawdata) ->
         token = token_and_rawdata.token
         rawdata = token_and_rawdata.rawdata
-        ["ema5ema10", "rsi", "stoch"].map (stat) ->
+        Promise.all ["ema5ema10", "rsi", "stoch"].map (stat) ->
             options =
                 url: "http://localhost:1337/api/signal/#{stat}"
                 method: "post"
