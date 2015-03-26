@@ -7,9 +7,6 @@ padding = 18
 RateLimiter = require("limiter").RateLimiter
 limiter = new RateLimiter(2, 'second')
 
-request = require "request-promise"
-    .defaults json: true
-
 module.exports =
 
     index: (req, res, next) ->

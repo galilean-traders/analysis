@@ -5,7 +5,7 @@
 
 module.exports = {
 
-    create: (req, res) ->
+    create: (req, res, next) ->
         adr = req.body.adr
         pip = req.body.pip
         precision = req.body.precision
@@ -15,6 +15,7 @@ module.exports = {
         takeprofit = 0.15 * adr * pip
         trailingstop = 12
         options = {}
+        console.log "creating order for", instrument, adr, pip, precision, side, stoploss, takeprofit
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         
         get_current_price = ->

@@ -17,10 +17,11 @@ module.exports = (options) ->
     else
         request(options)
             .then (response) ->
-                console.log response.statusCode
                 throw new OandaError response.body if "code" in response.body
                 return response
             .catch (reason) ->
-                console.log reason
-                return reason
+                if reason.statusCode == 304
+                    return reason
+                else
+                    throw new OandaError reason
             
