@@ -38,6 +38,10 @@ module.exports.bootstrap = (cb) ->
             sails.log.debug response.body
 
     get_trade_status = (signals) ->
+        sails.log.debug "adr is", signals[0]
+        sails.log.debug "ema5ema10 is", signals[1]
+        sails.log.debug "rsi is", signals[2]
+        sails.log.debug "stoch is", signals[3]
         all_equal = signals[1..]
             .reduce (a, b) -> if a == b then a else false
         if all_equal and signals[1] and signals[0]
