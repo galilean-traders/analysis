@@ -105,12 +105,12 @@ module.exports =
                 "access-token": req.headers["access-token"]
         oandaRequest options
             .then (json) ->
-                length = json.length
-                time = json[length - 1].time
-                json = json.map (d) -> d.value
-                [..., second, first] = json
+                slow_d = json[2].values
+                time = slow_d[slow_d.length - 1].time
+                values = slow_d.map (d) -> d.value
+                [..., second, first] = values
                 upwards = second < first
-                range = 20 < first < 80
+                range = 0.2 < first < 0.8
                 if upwards and range
                     value = "buy"
                 else if !upwards and range
