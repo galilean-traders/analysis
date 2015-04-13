@@ -30,6 +30,7 @@
     "request-promise": "^0.4.1",
     "sails": "~0.10.5",
     "sails-disk": "~0.10.0",
+    "sails-postgresql": "^0.10.14",
     "waterlock": "git+https://git@github.com/Globegitter/waterlock.git#return-jwt-no-redirect",
     "waterlock-local-auth": "0.0.5",
     "zmq": "^2.9.0"
