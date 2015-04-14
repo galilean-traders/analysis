@@ -19,6 +19,9 @@ module.exports =
             type: "string"
             required: "true"
         favorites: "array"
+        trade_attempts:
+            collection: "tradeAttempt"
+            via: "user"
     )
 
     beforeCreate: waterlock.models.user.beforeCreate
