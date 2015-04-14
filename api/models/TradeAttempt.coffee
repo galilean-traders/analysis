@@ -7,7 +7,7 @@ module.exports =
         instrument:
             type: "string"
         time:
-            type: "string"
+            type: "datetime"
         adr:
             type: "boolean"
         stoch:
@@ -20,4 +20,5 @@ module.exports =
             type: "string"
             enum: ["buy", "sell", "false"]
         status:
-            type: "boolean" # was a trade triggered?
+            type: "string"
+            enum: ["buy", "sell", "false"]
