@@ -16,5 +16,5 @@ module.exports =
         safe_params = _.pick req.body, whitelist
         _.merge safe_params, {user: req.user.id}
         TradeAttempt.find safe_params
-            .then res.json
+            .then res.json.bind res # fix binding http://stackoverflow.com/a/18019561
             .catch next

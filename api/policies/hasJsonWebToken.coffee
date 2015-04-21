@@ -16,11 +16,9 @@ module.exports = (req, res, next) ->
             sails.log.error "authentication error", err
             return res.forbidden err
         Auth.findOne user.auth
-            .exec (err, auth) ->
-                if err?
-                    sails.log.error "authentication error", err
-                    return res.forbidden err
+            .then (auth) ->
                 # valid request, save user to the request
                 req.user = user
                 req.user.email = auth.email
                 next()
+            .catch next

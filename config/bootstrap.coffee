@@ -16,6 +16,8 @@ module.exports.bootstrap = (cb) ->
     # It's very important to trigger this callback method when you are finished
     # with the bootstrap!  (otherwise your server will never lift, since it's waiting on the bootstrap)
     
+    validateTokenAsync = Promise.promisify waterlock.validator.validateToken
+        .bind waterlock.validator
     save_attempt = (o) ->
         trade_attempt = 
             user: o.user.id
@@ -142,11 +144,19 @@ module.exports.bootstrap = (cb) ->
                 _.merge token_and_instrument, {rawdata: rawdata}
 
     get_token = (user) ->
-        Jwt.findOne({owner: user.id, revoked: false})
-            .then (token) -> {
-                token: token.token
-                user: user
-            }
+        Jwt.find({owner: user.id, revoked: false})
+            .then (tokens) ->
+                ts = tokens.map (d) -> d.token
+                Promise
+                    .filter ts, (token) ->
+                        validateTokenAsync token
+                            .then (user) -> true
+                            .catch (error) -> false
+                    .then (valid) ->
+                        {
+                            token: valid[0]
+                            user: user
+                        }
 
     get_users = ->
         User.find()
@@ -156,6 +166,7 @@ module.exports.bootstrap = (cb) ->
             Promise
                 .map users, get_token
                 .map (user) -> 
+                    return unless user.token?
                     get_open_instruments user
                         .then (instruments) ->
                             Promise.map instruments, (instrument) -> 
