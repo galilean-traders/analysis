@@ -69,7 +69,7 @@ describe "User", ->
                 .catch done
 
         it "should update the email", (done) ->
-            User.update({id: auth.user}, {email: "another@email.com"})
+            User.update({id: auth.user}, {auth: auth.id, email: "another@email.com"})
                 .then (user) ->
                     user.should.have.length 1
                     Auth.findOne user[0].auth
@@ -81,7 +81,7 @@ describe "User", ->
                 .catch done
 
         it "should update the password", (done) ->
-            User.update({id: auth.user}, {password: "passauord"})
+            User.update({id: auth.user}, {auth: auth.id, password: "passauord"})
                 .then (user) ->
                     user.should.have.length 1
                     Auth.findOne user[0].auth

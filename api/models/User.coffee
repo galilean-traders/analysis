@@ -41,12 +41,12 @@ module.exports =
         updated_auth = {}
         updated_auth.email = values.email if values.email?
         updated_auth.password = values.password if values.password?
-        console.log "VALUES", values
         if updated_auth
             delete values.email
             delete values.password
             Auth.update values.auth, updated_auth
-                .then (auth) -> cb()
+                .then (auth) ->
+                    cb()
                 .catch cb
 
     beforeDestroy: (values, cb) ->
