@@ -16,8 +16,8 @@ npm install
 
 as the postgres user:
 ```bash
-createuser -s -P analysis # enter password: analysis
-createdb analysis -O analysis
+sudo -u postgres createuser -s -P analysis # enter password: analysis
+sudo -u postgres createdb analysis -O analysis
 ```
 
 # Test

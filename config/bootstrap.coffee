@@ -16,8 +16,10 @@ module.exports.bootstrap = (cb) ->
     # It's very important to trigger this callback method when you are finished
     # with the bootstrap!  (otherwise your server will never lift, since it's waiting on the bootstrap)
     
-    validateTokenAsync = Promise.promisify waterlock.validator.validateToken
+    validateTokenAsync = Promise
+        .promisify waterlock.validator.validateToken
         .bind waterlock.validator
+
     save_attempt = (o) ->
         trade_attempt = 
             user: o.user.id
@@ -180,11 +182,11 @@ module.exports.bootstrap = (cb) ->
                                     .then save_attempt
                                     .then place_order
 
-    scheduled_function()    
+    #scheduled_function()    
 
     schedule = later.parse.recur()
         .every(5).minute()
 
-    later.setInterval scheduled_function, schedule
+    #later.setInterval scheduled_function, schedule
 
     cb()
