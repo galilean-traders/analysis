@@ -34,6 +34,13 @@ module.exports.bootstrap = (cb) ->
             sails.log.debug "recorded attempt", attempt
         return o
 
+    update_trades = (o) ->
+        options = 
+            url: "http://localhost:1337/api/trade/index"
+        request options
+            .then (open_trades) ->
+                console.log "OPEN_TRADES", open_trades
+
     place_order = (o) ->
         signal = o.signals.status
         sails.log.debug "signals are:", signal, "for instrument", o.instrument
@@ -160,11 +167,8 @@ module.exports.bootstrap = (cb) ->
                             user: user
                         }
 
-    get_users = ->
-        User.find()
-
     scheduled_function = ->
-        get_users().then (users) ->
+        User.find().then (users) ->
             Promise
                 .map users, get_token
                 .map (user) -> 
@@ -182,11 +186,11 @@ module.exports.bootstrap = (cb) ->
                                     .then save_attempt
                                     .then place_order
 
-    #scheduled_function()    
+    scheduled_function()    
 
     schedule = later.parse.recur()
         .every(5).minute()
 
-    #later.setInterval scheduled_function, schedule
+    later.setInterval scheduled_function, schedule
 
     cb()
