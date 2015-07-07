@@ -32,8 +32,7 @@ module.exports =
         # http://stackoverflow.com/a/27752329
         if newly_created_user.auth?
             Auth.update({id: newly_created_user.auth}, {user: newly_created_user.id})
-                .then (auth) ->
-                    cb()
+                .then (auth) -> cb()
         else
             cb()
 
@@ -42,6 +41,7 @@ module.exports =
         updated_auth = {}
         updated_auth.email = values.email if values.email?
         updated_auth.password = values.password if values.password?
+        console.log "VALUES", values
         if updated_auth
             delete values.email
             delete values.password
