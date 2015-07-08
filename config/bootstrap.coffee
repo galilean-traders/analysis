@@ -33,8 +33,7 @@ module.exports.bootstrap = (cb) ->
             rsi: o.signals.rsi.value
             stoch: o.signals.stoch.value
             status: o.signals.status
-        TradeAttempt.create(trade_attempt).then (attempt) ->
-            sails.log.debug "recorded attempt", attempt
+        TradeAttempt.create(trade_attempt)
         return o
 
     update_trades = (o) ->
@@ -54,7 +53,7 @@ module.exports.bootstrap = (cb) ->
                     method: "delete"
                     headers:
                         "access-token": o.token
-                    qs:
+                    json:
                         trade_id: trade.id
                 request(options)
                     .then (deleted_trade) -> console.log "trade deleted", deleted_trade
@@ -62,7 +61,6 @@ module.exports.bootstrap = (cb) ->
 
     place_order = (o) ->
         signal = o.signals.status
-        sails.log.debug "signals are:", signal, "for instrument", o.instrument
         return null if not signal
         options =
             url: "http://localhost:1337/api/order/create"
@@ -75,7 +73,7 @@ module.exports.bootstrap = (cb) ->
                 precision: o.precision.length - 2
                 side: signal
         request(options).then (response) ->
-            sails.log.debug response.body
+            sails.log.debug "placed order, got", response.body
 
     get_trade_status = (signals) ->
         all_equal = signals.ema5ema10.value and signals.ema5ema10.value == signals.rsi.value and signals.rsi.value == signals.stoch.value
@@ -143,7 +141,9 @@ module.exports.bootstrap = (cb) ->
                     .filter ts, (token) ->
                         validateTokenAsync token
                             .then (user) -> true
-                            .catch (error) -> false
+                            .catch (error) ->
+                                Token.delete(id: token.id)
+                                false
                     .then (valid) ->
                         {
                             token: valid[0]

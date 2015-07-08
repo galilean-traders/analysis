@@ -71,7 +71,7 @@ module.exports =
                     d.closeMid
                 n: 5
         zmqUtils.send zmq_object, (data) ->
-            sails.log.debug "ema5 answer data: #{data}"
+            sails.log.silly "ema5 answer data: #{data}"
             res.json rUtils.filter_NA(data).map (d) ->
                 time: candles[d.index].time
                 value: d.value
@@ -85,7 +85,7 @@ module.exports =
                     d.closeMid
                 n: 10
         zmqUtils.send zmq_object, (data) ->
-            sails.log.debug "ema10 answer data: #{data}"
+            sails.log.silly "ema10 answer data: #{data}"
             res.json rUtils.filter_NA(data).map (d) ->
                 time: candles[d.index].time
                 value: d.value
@@ -99,7 +99,7 @@ module.exports =
                     d.closeMid
                 n: 14
         zmqUtils.send zmq_object, (data) ->
-            sails.log.debug "rsi answer data: #{data}"
+            sails.log.silly "rsi answer data: #{data}"
             res.json rUtils.filter_NA(data).map (d) ->
                 time: candles[d.index].time
                 value: d.value
@@ -143,7 +143,7 @@ module.exports =
                     d.highMid - d.lowMid
                 n: 14
         zmqUtils.send zmq_object, (data) ->
-            sails.log.debug "adr answer data: #{data}"
+            sails.log.silly "adr answer data: #{data}"
             res.json rUtils.filter_NA(data).map (d) ->
                 time: candles[d.index].time
                 value: d.value / req.body.pip
