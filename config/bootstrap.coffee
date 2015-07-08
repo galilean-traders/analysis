@@ -41,6 +41,7 @@ module.exports.bootstrap = (cb) ->
                 "access-token": o.token
             qs:
                 instrument: o.instrument
+            json: true
         request options
             .then (open_trades) ->
                 open_trades.filter (trade) -> trade.side != o.signals.ema5ema10.value
@@ -52,9 +53,9 @@ module.exports.bootstrap = (cb) ->
                         "access-token": o.token
                     qs:
                         trade_id: trade.id
-            .then (options) -> 
-                request options
+                request(options)
                     .then (deleted_trade) -> console.log "trade deleted", deleted_trade
+            return o
 
     place_order = (o) ->
         signal = o.signals.status
