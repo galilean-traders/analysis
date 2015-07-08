@@ -6,7 +6,7 @@
 module.exports = {
 
     create: (req, res, next) ->
-        adr = req.body.adr
+        adr = 100
         pip = req.body.pip
         precision = req.body.precision
         instrument = req.body.instrument

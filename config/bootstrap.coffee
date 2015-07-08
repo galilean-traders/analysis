@@ -32,7 +32,6 @@ module.exports.bootstrap = (cb) ->
             ema5ema10: o.signals.ema5ema10.value
             rsi: o.signals.rsi.value
             stoch: o.signals.stoch.value
-            adr: o.signals.adr.value
             status: o.signals.status
         TradeAttempt.create(trade_attempt).then (attempt) ->
             sails.log.debug "recorded attempt", attempt
@@ -72,7 +71,6 @@ module.exports.bootstrap = (cb) ->
                 "access-token": o.token
             json:
                 instrument: o.instrument
-                adr: o.current_adr
                 pip: o.pip
                 precision: o.precision.length - 2
                 side: signal
@@ -80,7 +78,7 @@ module.exports.bootstrap = (cb) ->
             sails.log.debug response.body
 
     get_trade_status = (signals) ->
-        all_equal = signals.adr.value and signals.ema5ema10.value and signals.ema5ema10.value == signals.rsi.value and signals.rsi.value == signals.stoch.value
+        all_equal = signals.ema5ema10.value and signals.ema5ema10.value == signals.rsi.value and signals.rsi.value == signals.stoch.value
         if all_equal
             signals.status = signals.ema5ema10.value
         else
@@ -121,41 +119,6 @@ module.exports.bootstrap = (cb) ->
                 .map (instrument) -> _.merge instrument, token_and_user
             return open_instruments
 
-    get_adr = (token_and_instrument) ->
-        token = token_and_instrument.token
-        instrument = token_and_instrument.instrument
-        options =
-            url: "http://localhost:1337/api/instrument/rawdata"
-            qs:
-                name: instrument
-                count: 25
-                granularity: "D"
-            json: true
-            headers:
-                "access-token": token
-        return request(options)
-            .then (rawdata) ->
-                instrument_options =
-                    url: "http://localhost:1337/api/instrument/adr"
-                    method: "post"
-                    json:
-                        candles: rawdata
-                        pip: token_and_instrument.pip
-                    headers:
-                        "access-token": token
-                signal_options =
-                    url: "http://localhost:1337/api/signal/adr"
-                    method: "post"
-                    json:
-                        candles: rawdata
-                        pip: token_and_instrument.pip
-                    headers:
-                        "access-token": token
-                return Promise.props {
-                    current_adr: request(instrument_options).then (d) -> d[d.length - 1].value
-                    value: request(signal_options).then (d) -> d.value
-                }                                     
-                                                          
     get_rawdata = (token_and_instrument) ->
         token = token_and_instrument.token
         instrument = token_and_instrument.instrument
@@ -196,21 +159,17 @@ module.exports.bootstrap = (cb) ->
                     get_open_instruments user
                         .then (instruments) ->
                             Promise.map instruments, (instrument) -> 
-                                Promise.join(
-                                    get_adr(instrument),
-                                    get_rawdata(instrument).then(get_m5_stats),
-                                    (adr, m5_stats) ->
-                                        m5_stats.adr = adr
+                                get_rawdata(instrument)
+                                    .then get_m5_stats
+                                    .then (m5_stats) ->
                                         Promise.props _.merge instrument, {signals: get_trade_status m5_stats}
-                                )
                                     .then save_attempt
                                     .then update_trades
                                     .then place_order
 
     scheduled_function()    
 
-    schedule = later.parse.recur()
-        .every(5).minute()
+    schedule = later.parse.recur().every(5).minute()
 
     later.setInterval scheduled_function, schedule
 
