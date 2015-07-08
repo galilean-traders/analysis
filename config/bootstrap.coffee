@@ -37,9 +37,16 @@ module.exports.bootstrap = (cb) ->
     update_trades = (o) ->
         options = 
             url: "http://localhost:1337/api/trade/index"
+            headers:
+                "access-token": o.token
+            qs:
+                instrument: o.instrument
         request options
             .then (open_trades) ->
-                console.log "OPEN_TRADES", open_trades
+                sails.log.debug "OPEN_TRADES", open_trades
+                open_trades.filter (trade) -> trade.side != o.signals.ema5ema10.value
+                    .map (trade) ->
+
 
     place_order = (o) ->
         signal = o.signals.status
@@ -184,6 +191,7 @@ module.exports.bootstrap = (cb) ->
                                         Promise.props _.merge instrument, {signals: get_trade_status m5_stats}
                                 )
                                     .then save_attempt
+                                    .then update_trades
                                     .then place_order
 
     scheduled_function()    

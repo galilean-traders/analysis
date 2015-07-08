@@ -1,6 +1,12 @@
 request = require "request-promise"
     .defaults json: true
 
+RateLimiter = require("limiter").RateLimiter
+limiter = new RateLimiter(2, 'second')
+Promise = require "bluebird"
+rateLimitAsync = Promise.promisify limiter.removeTokens
+    .bind limiter
+
 class OandaError extends Error
     constructor: (@message) ->
         # build an Error object with the data from the oanda api:
@@ -9,7 +15,7 @@ class OandaError extends Error
         @name = "OandaError"
         Error.captureStackTrace this, OandaError
 
-module.exports = (options) ->
+send_request = (options) ->
     if not options.resolveWithFullResponse?
         request(options).then (body) ->
             throw new OandaError(body) if "code" in body
@@ -24,4 +30,8 @@ module.exports = (options) ->
                     return reason
                 else
                     throw new OandaError reason
-            
+
+module.exports = (options) ->
+    rateLimitAsync(1)
+        .then ->
+            send_request(options)

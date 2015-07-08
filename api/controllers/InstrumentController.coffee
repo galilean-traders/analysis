@@ -4,8 +4,6 @@
  # @help        :: See http://links.sailsjs.org/docs/controllers
 
 padding = 18
-RateLimiter = require("limiter").RateLimiter
-limiter = new RateLimiter(2, 'second')
 
 module.exports =
 
@@ -37,17 +35,16 @@ module.exports =
         etag = memoryCache.get "etag"
         cached = memoryCache.get "cached"
         options.headers["If-None-Match"] = etag.etag if etag and cached
-        limiter.removeTokens 1, ->
-            oandaRequest options
-                .then (response) ->
-                    if response.statusCode is 304
-                        res.json cached.cached
-                    else
-                        json = response.body.candles.filter (d) -> d.complete is true
-                        memoryCache.set "etag", response.headers["etag"]
-                        memoryCache.set "cached", json
-                        res.json json
-                .catch (error) -> next error.error
+        oandaRequest options
+            .then (response) ->
+                if response.statusCode is 304
+                    res.json cached.cached
+                else
+                    json = response.body.candles.filter (d) -> d.complete is true
+                    memoryCache.set "etag", response.headers["etag"]
+                    memoryCache.set "cached", json
+                    res.json json
+            .catch (error) -> next error.error
 
     historical: (req, res, next) ->
         options =
