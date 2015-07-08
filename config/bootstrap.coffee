@@ -43,10 +43,18 @@ module.exports.bootstrap = (cb) ->
                 instrument: o.instrument
         request options
             .then (open_trades) ->
-                sails.log.debug "OPEN_TRADES", open_trades
                 open_trades.filter (trade) -> trade.side != o.signals.ema5ema10.value
-                    .map (trade) ->
-
+            .map (trade) ->
+                options =
+                    url: "http://localhost:1337/api/trade/delete"
+                    method: "delete"
+                    headers:
+                        "access-token": o.token
+                    qs:
+                        trade_id: trade.id
+            .then (options) -> 
+                request options
+                    .then (deleted_trade) -> console.log "trade deleted", deleted_trade
 
     place_order = (o) ->
         signal = o.signals.status
