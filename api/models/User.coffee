@@ -19,6 +19,9 @@ module.exports =
             type: "string"
             required: "true"
         favorites: "array"
+        trade_attempts:
+            collection: "tradeAttempt"
+            via: "user"
     )
 
     beforeCreate: waterlock.models.user.beforeCreate
@@ -29,8 +32,7 @@ module.exports =
         # http://stackoverflow.com/a/27752329
         if newly_created_user.auth?
             Auth.update({id: newly_created_user.auth}, {user: newly_created_user.id})
-                .then (auth) ->
-                    cb()
+                .then (auth) -> cb()
         else
             cb()
 
@@ -43,7 +45,8 @@ module.exports =
             delete values.email
             delete values.password
             Auth.update values.auth, updated_auth
-                .then (auth) -> cb()
+                .then (auth) ->
+                    cb()
                 .catch cb
 
     beforeDestroy: (values, cb) ->

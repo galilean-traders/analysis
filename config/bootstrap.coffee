@@ -16,50 +16,87 @@ module.exports.bootstrap = (cb) ->
     # It's very important to trigger this callback method when you are finished
     # with the bootstrap!  (otherwise your server will never lift, since it's waiting on the bootstrap)
     
-    place_order = (token_instrument_adr_signal) ->
-        signal = token_instrument_adr_signal.signal
-        sails.log.debug "signals are:", signal, "for instrument", token_instrument_adr_signal.instrument.instrument
+    validateTokenAsync = Promise
+        .promisify waterlock.validator.validateToken
+        .bind waterlock.validator
+
+    save_attempt = (o) ->
+        trade_attempt = 
+            user: o.user.id
+            instrument: o.instrument
+            time: o.signals.ema5ema10.time
+            ema5ema10: o.signals.ema5ema10.value
+            rsi: o.signals.rsi.value
+            stoch: o.signals.stoch.value
+            status: o.signals.status
+        TradeAttempt.create(trade_attempt)
+        return o
+
+    update_trades = (o) ->
+        options = 
+            url: "http://localhost:1337/api/trade/index"
+            headers:
+                "access-token": o.token
+            qs:
+                instrument: o.instrument
+            json: true
+        request options
+            .then (open_trades) ->
+                open_trades.filter (trade) ->
+                    o.signals.ema5ema10.value and trade.side != o.signals.ema5ema10.value 
+            .map (trade) ->
+                options =
+                    url: "http://localhost:1337/api/trade/delete"
+                    method: "delete"
+                    headers:
+                        "access-token": o.token
+                    json:
+                        trade_id: trade.id
+                request(options)
+                    .then (deleted_trade) -> console.log "trade deleted", deleted_trade
+            return o
+
+    place_order = (o) ->
+        signal = o.signals.status
         return null if not signal
-        token = token_instrument_adr_signal.token
-        instrument = token_instrument_adr_signal.instrument
-        adr = token_instrument_adr_signal.adr
         options =
             url: "http://localhost:1337/api/order/create"
             method: "post"
             headers:
-                "access-token": token
+                "access-token": o.token
             json:
-                instrument: instrument.instrument
-                adr: adr
-                pip: instrument.pip
-                precision: instrument.precision.length - 2
+                instrument: o.instrument
+                pip: o.pip
+                precision: o.precision.length - 2
                 side: signal
         request(options).then (response) ->
-            sails.log.debug response.body
+            sails.log.debug "placed order, got", response.body
 
     get_trade_status = (signals) ->
-        sails.log.debug "adr is", signals[0]
-        sails.log.debug "ema5ema10 is", signals[1]
-        sails.log.debug "rsi is", signals[2]
-        sails.log.debug "stoch is", signals[3]
-        all_equal = signals[1..]
-            .reduce (a, b) -> if a == b then a else false
-        if all_equal and signals[1] and signals[0]
-            return signals[1]
+        all_equal = signals.ema5ema10.value and signals.ema5ema10.value == signals.rsi.value and signals.rsi.value == signals.stoch.value
+        if all_equal
+            signals.status = signals.ema5ema10.value
         else
-            return false
+            signals.status = false
+        return signals
     
+    get_signal = (stat, rawdata, token) ->
+        options =
+            url: "http://localhost:1337/api/signal/#{stat}"
+            method: "post"
+            json: rawdata
+            headers:
+                "access-token": token
+        request(options)
+
     get_m5_stats = (token_and_rawdata) ->
         token = token_and_rawdata.token
         rawdata = token_and_rawdata.rawdata
-        Promise.all ["ema5ema10", "rsi", "stoch"].map (stat) ->
-            options =
-                url: "http://localhost:1337/api/signal/#{stat}"
-                method: "post"
-                json: rawdata
-                headers:
-                    "access-token": token
-            request(options).then (signal) -> signal.value
+        Promise.props {
+            ema5ema10: get_signal "ema5ema10", rawdata, token
+            rsi: get_signal "rsi", rawdata, token
+            stoch: get_signal "stoch", rawdata, token
+        }
 
     get_open_instruments = (token_and_user) ->
         token = token_and_user.token
@@ -74,56 +111,16 @@ module.exports.bootstrap = (cb) ->
         request(options).then (instruments) ->
             open_instruments = instruments
                 .filter (instrument) -> not instrument.halted
-                .map (instrument) -> 
-                    token: token
-                    user: user
-                    instrument: instrument
+                .map (instrument) -> _.merge instrument, token_and_user
             return open_instruments
 
-    get_adr = (token_and_instrument) ->
-        token = token_and_instrument.token
-        instrument = token_and_instrument.instrument
-        options =
-            url: "http://localhost:1337/api/instrument/rawdata"
-            qs:
-                name: instrument.instrument
-                count: 25
-                granularity: "D"
-            json: true
-            headers:
-                "access-token": token
-        return request(options)
-            .then (rawdata) ->
-                instrument_options =
-                    url: "http://localhost:1337/api/instrument/adr"
-                    method: "post"
-                    json:
-                        candles: rawdata
-                        pip: instrument.pip
-                    headers:
-                        "access-token": token
-                signal_options =
-                    url: "http://localhost:1337/api/signal/adr"
-                    method: "post"
-                    json:
-                        candles: rawdata
-                        pip: instrument.pip
-                    headers:
-                        "access-token": token
-                return Promise.props {
-                    value: request(instrument_options).then (d) -> d[10].value
-                    signal: request(signal_options).then (d) -> d.value
-                }                                     
-            .then (adr) ->
-                return _.merge token_and_instrument, adr
-                                                          
     get_rawdata = (token_and_instrument) ->
         token = token_and_instrument.token
         instrument = token_and_instrument.instrument
         options =
             url: "http://localhost:1337/api/instrument/rawdata"
             qs:
-                name: instrument.instrument
+                name: instrument
                 count: 25
                 granularity: "M5"
             json: true
@@ -134,40 +131,42 @@ module.exports.bootstrap = (cb) ->
                 _.merge token_and_instrument, {rawdata: rawdata}
 
     get_token = (user) ->
-        Jwt.findOne({owner: user.id, revoked: false})
-            .then (token) -> {
-                token: token.token
-                user: user
-            }
-
-    get_users = ->
-        User.find()
+        Jwt.find({owner: user.id, revoked: false})
+            .then (tokens) ->
+                Promise
+                    .filter tokens, (token) ->
+                        validateTokenAsync token.token
+                            .then (user) -> true
+                            .catch (error) ->
+                                Jwt.destroy(id: token.id)
+                                false
+                    .then (valid) ->
+                        token = if valid.length > 0 then valid[0].token else undefined
+                        {
+                            token: token
+                            user: user
+                        }
 
     scheduled_function = ->
-        get_users().then (users) ->
+        User.find().then (users) ->
             Promise
                 .map users, get_token
                 .map (user) -> 
+                    return unless user.token?
                     get_open_instruments user
                         .then (instruments) ->
                             Promise.map instruments, (instrument) -> 
-                                Promise.join(
-                                    get_adr(instrument),
-                                    get_rawdata(instrument).then(get_m5_stats),
-                                    (adr, m5_stats) ->
-                                        object = Promise.props {
-                                            adr: adr.value
-                                            signals: get_trade_status [adr.signal].concat m5_stats
-                                        })
-                                    .then (signal) ->
-                                        instrument.signal = signal.signals
-                                        instrument.adr = signal.adr
-                                        place_order instrument
+                                get_rawdata(instrument)
+                                    .then get_m5_stats
+                                    .then (m5_stats) ->
+                                        Promise.props _.merge instrument, {signals: get_trade_status m5_stats}
+                                    .then save_attempt
+                                    .then update_trades
+                                    .then place_order
 
     scheduled_function()    
 
-    schedule = later.parse.recur()
-        .every(5).minute()
+    schedule = later.parse.recur().every(5).minute()
 
     later.setInterval scheduled_function, schedule
 

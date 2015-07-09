@@ -12,6 +12,14 @@ sudo npm install -g mocha # for the tests
 npm install
 ```
 
+# Database
+
+as the postgres user:
+```bash
+sudo -u postgres createuser -s -P analysis # enter password: analysis
+sudo -u postgres createdb analysis -O analysis
+```
+
 # Test
 
 To run all the tests:

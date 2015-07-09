@@ -8,6 +8,8 @@ module.exports = {
     index: (req, res, next) ->
         options =
             url: "https://#{oandaServer req.user.account_type}/v1/accounts/#{req.user.account_id}/trades"
+            qs:
+                instrument: req.param "instrument"
         oandaHeaders req.user.account_type, req.user.oanda_token, options
         oandaRequest options
             .then (body) -> res.json body.trades

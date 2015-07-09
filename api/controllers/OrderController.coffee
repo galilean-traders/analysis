@@ -6,14 +6,14 @@
 module.exports = {
 
     create: (req, res, next) ->
-        adr = req.body.adr
+        adr = 200
         pip = req.body.pip
         precision = req.body.precision
         instrument = req.body.instrument
         side = req.body.side
         stoploss = 0.1 * adr * pip
         takeprofit = 0.15 * adr * pip
-        trailingstop = 12
+        trailingstop = 24
         options = {}
         console.log "creating order for", instrument, adr, pip, precision, side, stoploss, takeprofit
         oandaHeaders req.user.account_type, req.user.oanda_token, options

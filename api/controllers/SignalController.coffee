@@ -23,18 +23,16 @@ module.exports =
                 "access-token": req.headers["access-token"]
 
         get_ema5 = oandaRequest ema5_options
-
         get_ema10 = oandaRequest ema10_options
 
         compare_ema5ema10 = Promise.method (ema5, ema10) ->
-            length = ema5.length
-            time = ema5[length - 1].time
+            time = ema5[ema5.length - 1].time
             ema5 = ema5.map (d) -> d.value
             ema10 = ema10.map (d) -> d.value
-            ema5_upwards = ema5[length - 1] > ema5[length - 2]
-            ema10_upwards = ema10[length - 1] > ema10[length - 2]
-            ema5_cross_upwards_ema10 = ema5[length - 1] > ema10[length - 1] and ema5[length - 2] < ema10[length - 2]
-            ema5_cross_downwards_ema10 = ema5[length - 1] < ema10[length - 1] and ema5[length - 2] > ema10[length - 2]
+            ema5_upwards = ema5[ema5.length - 1] > ema5[ema5.length - 2]
+            ema10_upwards = ema10[ema10.length - 1] > ema10[ema10.length - 2]
+            ema5_cross_upwards_ema10 = ema5[ema5.length - 1] > ema10[ema10.length - 1] and ema5[ema5.length - 2] < ema10[ema10.length - 2]
+            ema5_cross_downwards_ema10 = ema5[ema5.length - 1] < ema10[ema10.length - 1] and ema5[ema5.length - 2] > ema10[ema10.length - 2]
             buy = ema5_upwards and ema10_upwards and ema5_cross_upwards_ema10
             sell = !ema5_upwards and !ema10_upwards and ema5_cross_downwards_ema10
             if buy

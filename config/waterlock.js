@@ -67,6 +67,9 @@ module.exports.waterlock = {
 
     // tracks jwt usage if set to true
     trackUsage: true,
+    tokenProperty: 'token',
+    expiresProperty: 'expiry',
+
 
     // if set to false will authenticate the
     // express session object and attach the
