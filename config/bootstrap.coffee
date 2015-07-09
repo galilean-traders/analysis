@@ -7,10 +7,6 @@
 # For more information on bootstrapping your app, check out:
 # http://sailsjs.org/#/documentation/reference/sails.config/sails.config.bootstrap.html
 
-require("nodetime").profile({
-    accountKey: 'b7c958bbed613585b57a9e9da07995da08f85b37', 
-    appName: 'analysis'
-  })
 later = require "later"
 request = require "request-promise"
 Promise = require "bluebird"
@@ -46,7 +42,8 @@ module.exports.bootstrap = (cb) ->
             json: true
         request options
             .then (open_trades) ->
-                open_trades.filter (trade) -> trade.side != o.signals.ema5ema10.value and o.signals.ema5ema10.value
+                open_trades.filter (trade) ->
+                    o.signals.ema5ema10.value and trade.side != o.signals.ema5ema10.value 
             .map (trade) ->
                 options =
                     url: "http://localhost:1337/api/trade/delete"
@@ -136,17 +133,17 @@ module.exports.bootstrap = (cb) ->
     get_token = (user) ->
         Jwt.find({owner: user.id, revoked: false})
             .then (tokens) ->
-                ts = tokens.map (d) -> d.token
                 Promise
-                    .filter ts, (token) ->
-                        validateTokenAsync token
+                    .filter tokens, (token) ->
+                        validateTokenAsync token.token
                             .then (user) -> true
                             .catch (error) ->
-                                Token.delete(id: token.id)
+                                Jwt.destroy(id: token.id)
                                 false
                     .then (valid) ->
+                        token = if valid.length > 0 then valid[0].token else undefined
                         {
-                            token: valid[0]
+                            token: token
                             user: user
                         }
 
